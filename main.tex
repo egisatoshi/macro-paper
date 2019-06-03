@@ -40,7 +40,7 @@
 \lstdefinelanguage{egison}{%
   sensitive = true,
   alsoletter={-},
-  keywords = [1]{match-all, match-all-dfs, match-first, define, lambda, and, or, not, later, something},
+  keywords = [1]{match-all, match-all-dfs, match-first, define, lambda, and, or, not, later, something, define-macro, let},
   keywords = [2]{:, ++},
   comment=[l]{--},
 }%
@@ -105,7 +105,8 @@
 
 \author{Satoshi Egi}
 \affiliation{%
-  \institution{Rakuten Institute of Technology}
+  \institution{Rakuten Institute of Technology, Rakuten Inc.}
+%  \institution{Rakuten Institute of Technology}
   \country{Japan}
 }
 
@@ -260,10 +261,12 @@ Among them, Racket supports more expressive pattern matching than other Scheme i
 % Gaucheにも実装されている．
 % SRFIとパターンマッチ．
 
-\section{Syntax of Pattern Matching}
+\section{Basic Usage of Proposed Macros}
+
+\subsection{Syntax}
 
 \begin{grammar}
-<pm-expr> ::= `(match-all' <expr> <expr> <match-clause>             \hfill (match-all)
+<pm-expr> ::= `(match-all' <expr> <expr> <match-clause>         \hfill (match-all)
   \alt `(match-first' <expr> <expr> `{' <match-clause>* `}'      \hfill (match)
 
 <match-clause> ::= `['<pat> <expr>`]' \hfill (match clause)
@@ -279,12 +282,12 @@ Among them, Racket supports more expressive pattern matching than other Scheme i
   \alt `(later' <pattern> `)'    \hfill (later pattern)
 \end{grammar}
 
-Value patterns are represented by prepending ``\texttt{,}'' to an expression that is evaluated to a value.
-Tuple patterns are represented by prepending ``\texttt{'}'' to a list of patterns.
+\subsection{Value Patterns}
 
 Let me show an example of a value pattern.
 The program below pattern-matches a list \texttt{(1 2 3 2 1)} as a multiset.
 The pattern in the program below matches if the target collection contains pairs of elements in sequence.
+Value patterns are represented by prepending ``\texttt{,}'' to an expression that is evaluated to a value.
 A non-linear pattern is effectively used for expressing the pattern.
 
 \begin{lstlisting}[language=egison]
@@ -294,6 +297,7 @@ A non-linear pattern is effectively used for expressing the pattern.
 \subsection{Tuple Patterns}
 
 Next, let me show an example of a tuple pattern.
+Tuple patterns are represented by prepending ``\texttt{'}'' to a list of patterns.
 \todo{TODO}
 
 \begin{lstlisting}[language=egison]
@@ -433,17 +437,30 @@ The program below describes the Davis-Putnam algorithm.
 
 \section{Algorithm of Egison Pattern Matching}\label{algorithm}
 
+This section explains and implements the pattern-matching algorithm of Egison, which is described in Sect. 5 and Sect. 7 of~\cite{egi2018aplas}.
+After the explanation of the pattern-matching algorithm, we introduce a simplified implementation of this algorithm in Scheme.
+This implementation is called by the macros whose implementation are introduced in Sect.~\ref{method}.
+
+In Egison, pattern matching is implemented as reductions of stacks of \emph{matching atoms}.
+A matching atom is a triple of a pattern, target, and matcher.
+In each step of a pattern-matching process, the top matching atom is popped out.
+From this matching atom, a list of lists of next matching atoms is calculated.
+Each list of the next matching atoms is pushed to the stack of matching atoms.
+As a result, a single stack of matching atom is reduced to multiple stacks of matching atoms in a single reduction step.
+Pattern matching is recursively executed for each stack of matching atoms.
+When a stack becomes empty, it means pattern matching for this stack succeeded.
+
+The \texttt{processMState} function below implements this process.
+\texttt{processMState} takes a \emph{matching state} as its argument.
+A matching atom consists of a stack of matching atoms and an intermediate result of pattern matching.
+The first match clause (the 4th and 5th lines) describes the case where the matcher of the top matching atom is \texttt{Something}.
+In this case, the value \texttt{t} is added to the intermediate pattern-matching result.
+The reason why an intermediate result is a list of values and not a list of pairs of a symbol and a value is explained in Sect.~\ref{method-map}.
+The second match clause (the 6th-8th lines) describes the general case.
+The list of lists of next matching atoms are calculated in the 7th line.
+In this Scheme implementation, a matcher is a function that takes a pattern and a target, and returns a list of lists of the next matching atoms.
 
 \begin{lstlisting}[language=egison]
-(define processMStates
-  (lambda (mStates)
-    (match mStates
-      (() '())
-      ((('MState '{} ret) . rs)
-       (cons ret (processMStates rs)))
-      ((mState . rs)
-       (processMStates (append (processMState mState) rs))))))
-
 (define processMState
   (lambda (mState)
     (match mState
@@ -454,7 +471,29 @@ The program below describes the Davis-Putnam algorithm.
          (map (lambda (next-matoms) `(MState ,(append next-matoms mStack) ,ret)) next-matomss))))))
 \end{lstlisting}
 
+The \texttt{processMStates} below implements the whole pattern-matching process while the above \texttt{processMState} implements a step of this pattern-matching process.
+\texttt{processMStates} takes a list of matching states as its argument and returns all the pattern-matching results.\todo{all the?}
+The first match clause (the 4th line) describes the case where a list of matching states is empty.
+In this case, \texttt{processMStates} simply returns an empty list and terminates.
+The second match clause (the 5th and 6th line) describes the case where the stack of the first matching state is empty.
+In this case, the intermediate pattern-matching result of this matching state is added to the return value of \texttt{processMStates} as a final result of pattern matching.
+\texttt{processMStates} is recursively called for the rest matching states.
+The third match clause (the 7th and 8th line) describes the general case.
+In this case, \texttt{processMState} is called for the first matching state.
+\todo{...}
 
+\begin{lstlisting}[language=egison]
+(define processMStates
+  (lambda (mStates)
+    (match mStates
+      (() '{})
+      ((('MState '{} ret) . rs)
+       (cons ret (processMStates rs)))
+      ((mState . rs)
+       (processMStates (append (processMState mState) rs))))))
+\end{lstlisting}
+
+Here, we simplify the algorithm by omitting the function to traverse an infinitely large search tree.
 We omit the explanation of the algorithm for enumerating infinite results of pattern matching in this paper.
 It is implemented in \texttt{stream-egison.scm} in~\cite{egisonScheme}.
 
@@ -462,9 +501,10 @@ It is implemented in \texttt{stream-egison.scm} in~\cite{egisonScheme}.
 
 This section introduces a method for implementing the \texttt{match-all} macro in Scheme.
 
-\subsection{Compiling Matchers to \texttt{lambda}s}
+\subsection{Compiling Matchers to \texttt{lambda}s}\ref{method-matcher}
 
-Matchers are defined as a function that takes a pattern and target, and returns next matching atoms.
+In the original paper of Egison pattern matching~\cite{egi2018aplas}, a matcher is a special object for retaining just a pattern-matching algorithm.
+In the proposed Scheme macros, for \todo{} matchers are defined as a function that takes a pattern and target, and returns next matching atoms.
 For example, the \texttt{Multiset} matcher is defined as follows.
 
 \begin{lstlisting}[language=egison]
@@ -472,22 +512,23 @@ For example, the \texttt{Multiset} matcher is defined as follows.
   (lambda (M)
     (lambda (p t)
       (match p
-             (('cons px py)
-              (map (lambda (xy) `((,px ,M ,(car xy)) (,py ,(Multiset M) ,(cadr xy))))
-                   (match-all t (List M)
-                              [(join hs (cons x ts)) `(,x ,(append hs ts))])))
-             (pvar
-              `(((,pvar Something ,t))))
-             ))))
+        (('nil) (if (eq? t '()) '{{}} '{}))
+        (('cons px py)
+         (map (lambda (xy) `{[,px ,M ,(car xy)] [,py ,(Multiset M) ,(cadr xy)]})
+              (match-all t (List M)
+                [(join hs (cons x ts)) `(,x ,(append hs ts))])))
+        (pvar
+         `{{[,pvar Something ,t]}})))))
 \end{lstlisting}
 
+Note that, \texttt{match} is used for pattern matching for patterns.
 
-\subsection{Compiling \texttt{match-all} to Application of \texttt{map}}
+\subsection{Compiling \texttt{match-all} to Application of \texttt{map}}\label{method-map}
 
-The \texttt{match-all} expression is transformed into an application of \texttt{map} whose first argument uses \texttt{extract-pattern-variables} and second argument is the result of \texttt{gen-match-results}.
-\texttt{extract-pattern-variables} takes a pattern and returns a list of pattern variables that appear in the pattern.
+The \texttt{match-all} expression is transformed into an application of \texttt{map} whose first argument is a function whose argument is a return value of \texttt{extract-pattern-variables}, and second argument is the result of \texttt{gen-match-results}.
+The \texttt{extract-pattern-variables} function takes a pattern and returns a list of pattern variables that appear in the pattern.
 The order of the pattern variables corresponds with the order they appeared in the pattern.
-\texttt{gen-match-results} returns a list of gen-match-resultsing results.
+The \texttt{gen-match-results} function returns a list of gen-match-resultsing results.
 The gen-match-resultsing results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
 The order of the values in the gen-match-resultsing results must correspond with the order of pattern variables returned by \texttt{extract-pattern-variables}.
 
@@ -496,8 +537,7 @@ The order of the values in the gen-match-resultsing results must correspond with
 ;=> `(map (lambda ,(extract-pattern-variables p) ,e) ,(gen-match-results p M t))
 \end{lstlisting}
 
-The following macro do this transformation.
-%Values that are assigned to these pattern variables are calculated with \texttt{gen-match-results}.
+\noindent The above transformation is done by The following macro.
 
 \begin{lstlisting}[language=egison]
 (define-macro (match-all t M clause)
@@ -507,7 +547,8 @@ The following macro do this transformation.
           (gen-match-results ,p ,M ,t))))
 \end{lstlisting}
 
-\texttt{gen-match-results} just calls \texttt{processMStates} introduced in Sect.~\ref{algorithm}.
+\noindent The program below defines \texttt{gen-match-results}.
+\texttt{gen-match-results} is a macro that just calls the \texttt{processMStates} function introduced in Sect.~\ref{algorithm}.
 
 \begin{lstlisting}[language=egison]
 (define-macro (gen-match-results p M t)
@@ -568,6 +609,10 @@ Integration with a static type system remains as future work.
 Currently, we have an experimental Template Haskell implementation~\cite{egisonHaskell}.
 
 \section{Conclusion}\label{conclusion}
+
+This paper proposed a method for compiling a complicate pattern-matching procedure for functional programming languages with high-ordered functions.
+
+extraction of pattern variables and destruction of targets.
 
 \todo{Write something cool.}
 
