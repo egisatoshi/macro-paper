@@ -1,0 +1,219 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{17}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{??}{egi}{2011}]%
+        {egisonWeb}
+ \bibinfo{year}{2011}\natexlab{}.
+\newblock \bibinfo{title}{{The Egison Programming Language}}.
+\newblock \bibinfo{howpublished}{\url{https://www.egison.org}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 14-June-2018].}
+
+
+\bibitem[\protect\citeauthoryear{??}{egi}{2018}]%
+        {egisonScheme}
+ \bibinfo{year}{2018}\natexlab{}.
+\newblock \bibinfo{title}{{egison/egison-scheme: Scheme Macros for Egison
+  Pattern Matching}}.
+\newblock
+\newblock
+\newblock
+\shownote{[Online; accessed 21-Feb-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{gau}{2018}]%
+        {gaucheWeb}
+ \bibinfo{year}{2018}\natexlab{}.
+\newblock \bibinfo{title}{{Gauche -- A Scheme Implementation}}.
+\newblock \bibinfo{howpublished}{\url{http://practical-scheme.net/gauche}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 1-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{egi}{2019}]%
+        {egisonHaskell}
+ \bibinfo{year}{2019}\natexlab{}.
+\newblock \bibinfo{title}{{egison/egison-haskell: Template Haskell
+  Implementation of Egison Pattern Matching}}.
+\newblock
+\newblock
+\newblock
+\shownote{[Online; accessed 21-Feb-2019].}
+
+
+\bibitem[\protect\citeauthoryear{Burstall}{Burstall}{1969}]%
+        {burstall1969proving}
+\bibfield{author}{\bibinfo{person}{Rod~M. Burstall}.}
+  \bibinfo{year}{1969}\natexlab{}.
+\newblock \showarticletitle{Proving properties of programs by structural
+  induction}.
+\newblock \bibinfo{journal}{\emph{Comput. J.}} \bibinfo{volume}{12},
+  \bibinfo{number}{1} (\bibinfo{year}{1969}), \bibinfo{pages}{41--48}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Burstall, MacQueen, and Sannella}{Burstall
+  et~al\mbox{.}}{1980}]%
+        {burstall1980hope}
+\bibfield{author}{\bibinfo{person}{Rod~M. Burstall}, \bibinfo{person}{David~B.
+  MacQueen}, {and} \bibinfo{person}{Donald~T. Sannella}.}
+  \bibinfo{year}{1980}\natexlab{}.
+\newblock \showarticletitle{HOPE: An experimental applicative language}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 1980 ACM conference on LISP and
+  functional programming}}. ACM, \bibinfo{pages}{136--143}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Egi}{Egi}{2018}]%
+        {egi2018loop}
+\bibfield{author}{\bibinfo{person}{Satoshi Egi}.}
+  \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Loop Patterns: Extension of Kleene Star Operator
+  for More Expressive Pattern Matching against Arbitrary Data Structures}.
+\newblock \bibinfo{journal}{\emph{The Scheme and Functional Programming
+  Workshop}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Egi and Nishiwaki}{Egi and Nishiwaki}{2018}]%
+        {egi2018aplas}
+\bibfield{author}{\bibinfo{person}{Satoshi Egi} {and} \bibinfo{person}{Yuichi
+  Nishiwaki}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Non-linear Pattern Matching with Backtracking for
+  Non-free Data Types}. In \bibinfo{booktitle}{\emph{Asian Symposium on
+  Programming Languages and Systems}}. Springer, \bibinfo{pages}{3--23}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Erwig}{Erwig}{1996}]%
+        {erwig1996active}
+\bibfield{author}{\bibinfo{person}{Martin Erwig}.}
+  \bibinfo{year}{1996}\natexlab{}.
+\newblock \showarticletitle{{Active patterns}}.
+\newblock \bibinfo{journal}{\emph{Implementation of Functional Languages}}
+  (\bibinfo{year}{1996}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{McBride, Morrison, and Pengelly}{McBride
+  et~al\mbox{.}}{1969}]%
+        {mcbride1969symbol}
+\bibfield{author}{\bibinfo{person}{F.~V. McBride}, \bibinfo{person}{D.~J.~T.
+  Morrison}, {and} \bibinfo{person}{R.~M. Pengelly}.}
+  \bibinfo{year}{1969}\natexlab{}.
+\newblock \showarticletitle{A symbol manipulation system}.
+\newblock \bibinfo{journal}{\emph{Machine Intelligence}}  \bibinfo{volume}{5}
+  (\bibinfo{year}{1969}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Queinnec}{Queinnec}{1990}]%
+        {queinnec1990compilation}
+\bibfield{author}{\bibinfo{person}{Christian Queinnec}.}
+  \bibinfo{year}{1990}\natexlab{}.
+\newblock \showarticletitle{{Compilation of non-linear, second order patterns
+  on S-expressions}}. In \bibinfo{booktitle}{\emph{Programming Language
+  Implementation and Logic Programming}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Thompson}{Thompson}{1986}]%
+        {thompson1986laws}
+\bibfield{author}{\bibinfo{person}{Simon Thompson}.}
+  \bibinfo{year}{1986}\natexlab{}.
+\newblock \showarticletitle{Laws in miranda}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 1986 ACM conference on LISP and
+  functional programming}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Thompson}{Thompson}{1990}]%
+        {thompson1990lawful}
+\bibfield{author}{\bibinfo{person}{Simon Thompson}.}
+  \bibinfo{year}{1990}\natexlab{}.
+\newblock \showarticletitle{Lawful functions and program verification in
+  Miranda}.
+\newblock \bibinfo{journal}{\emph{Science of Computer Programming}}
+  \bibinfo{volume}{13}, \bibinfo{number}{2-3} (\bibinfo{year}{1990}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Tobin-Hochstadt}{Tobin-Hochstadt}{2011}]%
+        {tobin2011extensible}
+\bibfield{author}{\bibinfo{person}{Sam Tobin-Hochstadt}.}
+  \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{Extensible pattern matching in an extensible
+  language}.
+\newblock \bibinfo{journal}{\emph{arXiv preprint arXiv:1106.2578}}
+  (\bibinfo{year}{2011}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Tullsen}{Tullsen}{2000}]%
+        {tullsen2000first}
+\bibfield{author}{\bibinfo{person}{Mark Tullsen}.}
+  \bibinfo{year}{2000}\natexlab{}.
+\newblock \showarticletitle{{First Class Patterns}}.
+\newblock \bibinfo{journal}{\emph{Practical Aspects of Declarative Languages}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Wadler}{Wadler}{1987}]%
+        {wadler1987views}
+\bibfield{author}{\bibinfo{person}{Philip Wadler}.}
+  \bibinfo{year}{1987}\natexlab{}.
+\newblock \showarticletitle{{Views: A way for pattern matching to cohabit with
+  data abstraction}}. In \bibinfo{booktitle}{\emph{Proceedings of the 14th ACM
+  SIGACT-SIGPLAN symposium on Principles of programming languages}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Wright and Duba}{Wright and Duba}{1993}]%
+        {wright1993pattern}
+\bibfield{author}{\bibinfo{person}{A.K. Wright} {and} \bibinfo{person}{B.F.
+  Duba}.} \bibinfo{year}{1993}\natexlab{}.
+\newblock \showarticletitle{{Pattern matching for Scheme}}.
+\newblock \bibinfo{journal}{\emph{Unpublished manuscript}}
+  (\bibinfo{year}{1993}).
+\newblock
+
+
+\end{thebibliography}

@@ -1,0 +1,9 @@
+*.omc
+*.aux
+*.blg
+*.dvi
+*.log
+*.out
+*.xcp
+.omakedb
+.omakedb.lock

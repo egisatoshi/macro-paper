@@ -1,0 +1,583 @@
+\documentclass[acmlarge]{acmart}
+
+\usepackage{booktabs} % For formal tables
+
+% TOG prefers author-name bib system with square brackets
+%\citestyle{acmauthoryear}
+%\setcitestyle{square}
+
+\newcommand{\todo}[1]{\textcolor{red}{(TODO: #1)}}
+
+\usepackage{multicol}
+
+\usepackage{xcolor}
+\definecolor{P@Blue}{named}{blue}
+\definecolor{P@ColorOnBlue}{gray}{.95}
+\definecolor{P@GrayFG}{named}{darkgray}
+\definecolor{P@GrayBG}{gray}{.90}
+
+%\newcommand*\P@listingnumbersfont{%
+%  \sffamily\small\color{P@GrayFG!40}%
+%  \ifthenelse{\boolean{xetex}\or\boolean{luatex}}%
+%    {\firaoldstylemono}
+%    {\tbfigures}}%
+
+\RequirePackage{listings}
+\lstset{%
+  basicstyle=\small\ttfamily,%
+  columns=fullflexible,
+  extendedchars=true,
+  upquote=true,
+  captionpos=t,
+  backgroundcolor=\color{P@GrayBG},%
+  breaklines=true,
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{P@Blue}\hookrightarrow\space}},
+  numbers=left,
+%  numberstyle=\P@listingnumbersfont,
+  numbersep=.5em,
+  frame=single,
+  framerule=0pt}
+\lstdefinelanguage{egison}{%
+  sensitive = true,
+  alsoletter={-},
+  keywords = [1]{match-all, match-all-dfs, match-first, define, lambda, and, or, not, later, something},
+  keywords = [2]{:, ++},
+  comment=[l]{--},
+}%
+\lstset{%
+  language={egison},%
+  keywordstyle=[1]\textbf,
+  keywordstyle=[2]\color{blue},
+  stringstyle=\color{RosyBrown},%
+  commentstyle={\color{red}},%
+}
+\lstdefinelanguage{none} {
+  keywords={},
+  alsoletter={-},
+  morekeywords={}
+}
+
+\usepackage{bussproofs}
+\usepackage{multicol}
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage{here}
+%\usepackage{url}
+%\makeatletter
+%\g@addto@macro{\UrlBreaks}{\UrlOrds}
+%\makeatother
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
+\usepackage{syntax}
+\usepackage{amssymb}
+\usepackage{amsmath}
+%\PassOptionsToPackage{dvipsnames}{xcolor}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+%\usepackage{ascmath}
+%\usepackage{ulem}
+
+\EnableBpAbbreviations
+
+\newcommand*{\ppm}[3]{#1 \approx^{#2} #3 \Downarrow}
+\newcommand*{\pdm}[2]{#1 \approx #2 \Downarrow}
+\newcommand*{\mfun}[4]{#1 \sim^{#2}_{#3} #4 \Downarrow}
+\newcommand*{\matom}[3]{#1 \sim_{#2} #3}
+\newcommand*{\ev}[2]{#1, #2 \Downarrow}
+\newcommand*{\set}[1]{\{#1\}}
+\newcommand*{\cons}{:}
+\newcommand*{\none}{\mathord{\texttt{none}}}
+\newcommand*{\some}{\mathop{\texttt{some}}}
+\newcommand*{\opt}{\mathop{\texttt{opt}}}
+
+\newcommand*{\backgray}[1]{\colorbox[gray]{0.9}{\color[gray]{0.0}{#1}}}
+
+\let\emptyset\varnothing
+
+\newcommand{\cL}{{\cal L}}
+
+\begin{document}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\title{Scheme Macros for Non-linear Pattern Matching with Backtracking for Non-free Data Types}
+
+\author{Satoshi Egi}
+\affiliation{%
+  \institution{Rakuten Institute of Technology}
+  \country{Japan}
+}
+
+\begin{abstract}
+  % Context:
+  Pattern matching is an important feature of programming languages for data abstraction.
+  Many pattern matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable.
+  Among them, a pattern-matching system proposed by Egi and Nishiwaki features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking, (ii) extensibility of pattern-matching algorithms, and (iii) polymorphic patterns.
+  % Inquiry:
+  They implemented their proposal in an interpreter of the Egison programming language.
+  % Approach:
+  This paper presents a method for compiling this Egison pattern matching by introducing Scheme macros for importing Egison pattern matching into Scheme.
+  We achieved that by transforming a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target.
+  % Knowledge
+  This paper also demonstrates the expressiveness of this pattern-matching system by showing redefinitions of the basic list processing functions such as \texttt{map}, \texttt{concat}, or \texttt{unique}, and implementation of a SAT solver as a more practical mathematical algorithm.
+  
+  % Grounding, and Importance:  
+\end{abstract}
+
+% 2012 ACM Computing Classification System (CSS) concepts
+% Generate at 'http://dl.acm.org/ccs/ccs.cfm'.
+\begin{CCSXML}
+<concept>
+<concept_id>10011007.10011006.10011008</concept_id>
+<concept_desc>Software and its engineering~General programming languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~General programming languages}
+% end generated code
+
+% Legacy 1998 ACM Computing Classification System categories are also
+% supported, but not recommended.
+%\category{CR-number}{subcategory}{third-level}[fourth-level]
+%\category{D.3.0}{Programming Languages}{General}
+%\category{F.3.2}{Logics and Meanings of Programs}{Semantics of Programming Languages}[Program analysis]
+
+\keywords{pattern-matching-oriented, pattern matching, non-free data types, non-linear pattern, backtracking}
+
+\maketitle
+
+\section{Introduction}\label{intro}
+
+Pattern matching is an important feature of programming languages for data abstraction.
+Many pattern matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable.\todo{Cite}
+Among them, a pattern-matching system proposed by Egi and Nishiwaki features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking, (ii) extensibility of pattern-matching algorithms, and (iii) polymorphic patterns~\cite{egi2018aplas}.
+
+implementation of pattern matching for functional languages.
+
+dynamic type system
+
+macros
+
+a complicate pattern matching procedure
+
+\cite{egisonScheme}
+
+\section{Related Work}\label{history}
+
+We review a history of pattern matching and implementation of pattern matching in Scheme.
+
+\subsection{History of Pattern Matching and Its Extensions}\label{history1}
+
+Pattern matching that looks similar to pattern matching widely used nowadays was proposed by Burstall in 1969~\cite{burstall1969proving}.
+Burstall proposed to use the notation ``\texttt{let cons(a, y) = x}'' instead of ``\texttt{let (a, y) = decons(x)}''.
+In~\cite{burstall1969proving}, \texttt{concat} is defined in the modern fashion.
+``\texttt{:}'' and ``\texttt{::}'' in the second and third lines are used on behalf of ``\texttt{->}'' and ``\texttt{cons}'', respectively.
+
+\begin{lstlisting}[language=egison]
+let rec concat(xs1, xs2) = cases xs1:
+                             x :: xs1: x :: concat(xs1, xs2)
+                             nil()   : xs2
+\end{lstlisting}
+
+User-defined algebraic data types are invented in 1970s after pattern matching.
+HOPE~\cite{burstall1980hope} by Burstall, MacQueen, and Sannella is a well-known language that introduced user-defined algebraic data types and pattern matching for them.
+
+In 1980s, more expressive pattern matching for wider range of data types started to be pursued.
+Miranda's laws~\cite{thompson1986laws,thompson1990lawful} and Wadler's views~\cite{wadler1987views} are earlier such research.
+They discarded the assumption that one-to-one correspondence should exist between patterns and data constructors.
+They enable pattern matching for data types whose data have multiple representation forms.
+For example, Wadler's paper on views~\cite{wadler1987views} present pattern matching for complex numbers that have two different representation forms: Cartesian and polar.
+However, their expressiveness is not enough for representing patterns for non-free data types.
+They neither support non-linear patterns and pattern matching with multiple results.
+
+These works lead to more expressive extensions of pattern matching.
+Erwig's active patterns~\cite{erwig1996active} proposed in 1996 and Tullsen's first class patterns~\cite{tullsen2000first} proposed in 2000 are such extensions.
+Both extensions allow users to customize the pattern-matching algorithm for each pattern.
+Active patterns supports non-linear patterns though they does not support pattern matching with multiple results.
+First class patterns supports pattern matching with backtracking though they does not support pattern matching with multiple results.
+
+Egison~\cite{egisonWeb} is a programming language with a pattern matching system that is extensible and supports both of non-linear patterns and multiple results~\cite{egi2018aplas}.
+
+\begin{lstlisting}[language=egison]
+(match-all (take n (repeat 0)) (multiset integer) [<cons $x <cons ,(+ x 1) _>> x])
+; returns [] in O(n^2) time
+(match-all (take n (repeat 0)) (multiset integer) [<cons $x <cons ,(+ x 1) <cons ,(+ x 2) _>>> x])
+; returns [] in O(n^2) time
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(define $multiset
+  (lambda [$a]
+    (matcher
+      {[<nil> []
+        {[{} {[]}]
+         [_ {}]}]
+       [<cons $ $> [a (multiset a)]
+        {[$tgt (match-all tgt (list a)
+                 [<join $hs <cons $x $ts>> [x {@hs @ts}]])]}]
+       [,$val []
+        {[$tgt (match [val tgt] [(list a) (multiset a)]
+                 {[[<nil> <nil>] {[]}]
+                  [[<cons $x $xs> <cons ,x ,xs>] {[]}]
+                  [[_ _] {}]})]}]
+       [$ [something]
+        {[$tgt {tgt}]}]})))
+\end{lstlisting}
+
+\medskip
+
+Pattern matching was also invented in a context of computer algebra.
+Pattern matching for symbolical mathematical expression was implemented in the symbol manipulation system proposed by McBride~\cite{mcbride1969symbol}, which was developed on top of Lisp.
+This pattern-matching system supports \emph{non-linear patterns}.
+A non-linear pattern is a pattern that allows multiple occurrences of the same variables in a pattern.
+Their paper demonstrates some examples that process symbolic mathematical expressions to show the expressive power of non-linear patterns.
+However, this approach does not support pattern matching with multiple results, and users cannot extend its pattern-matching facility.
+
+At the same time, more expressive pattern matching is explored by Queinnec~\cite{queinnec1990compilation}, who proposed an expressive pattern matching for lists.
+Though this proposal is specialized to lists and not extensible, the proposed language supports the \texttt{cons} and the \texttt{join} patterns, non-linear pattern matching with backtracking, \texttt{matchAll}, not-patterns, and recursive patterns.
+His proposal achieves almost perfect expressiveness for patterns of lists and allows the pattern-matching-oriented definition of the basic list processing functions.
+For example, the following \texttt{member} definition is presented in Queinnec's paper~\cite{queinnec1990compilation}.
+
+\begin{lstlisting}[language=]
+member ?x (??- ?x ??-) -> true
+member ?x ?-           -> false
+\end{lstlisting}
+
+\subsection{Implementation History of Pattern Matching in Scheme}\label{history2}
+
+%As mentioned in Sect~\ref{history1}, expressive pattern matching is proposed and implemented also on Lisp.
+
+Currently, SRFI for pattern matching for algebraic data types does not exist.
+However, pattern matching for algebraic data types designed by Wright~\cite{wright1993pattern} is implemented in most of well-known Scheme implementations such as Gauche\todo{Cite}, Guile\todo{Cite}, and Chicken\todo{Cite}.
+
+Among them, Racket supports more expressive pattern matching than other Scheme implementations~\cite{tobin2011extensible}.
+
+% パターンマッチライブラリの調査．
+% Racketにはかなり実装されている．
+% Gaucheにも実装されている．
+% SRFIとパターンマッチ．
+
+\section{Syntax of Pattern Matching}
+
+\begin{grammar}
+<pm-expr> ::= `(match-all' <expr> <expr> <match-clause>             \hfill (match-all)
+  \alt `(match-first' <expr> <expr> `{' <match-clause>* `}'      \hfill (match)
+
+<match-clause> ::= `['<pat> <expr>`]' \hfill (match clause)
+
+<pattern> ::= `\_'                    \hfill (wildcard)
+  \alt <ident>                        \hfill (pattern variable)
+  \alt `,'<expr>                      \hfill (value pattern)
+  \alt `\'(' <pattern>* `)'      \hfill (tuple pattern)
+  \alt `(' <ident> <pattern>* `)'     \hfill (inductive pattern)
+  \alt `(or' <pattern>* `)'      \hfill (or-pattern)
+  \alt `(and' <pattern>* `)'     \hfill (and-pattern)
+  \alt `(not' <pattern> `)'      \hfill (not-pattern)
+  \alt `(later' <pattern> `)'    \hfill (later pattern)
+\end{grammar}
+
+Value patterns are represented by prepending ``\texttt{,}'' to an expression that is evaluated to a value.
+Tuple patterns are represented by prepending ``\texttt{'}'' to a list of patterns.
+
+Let me show an example of a value pattern.
+The program below pattern-matches a list \texttt{(1 2 3 2 1)} as a multiset.
+The pattern in the program below matches if the target collection contains pairs of elements in sequence.
+A non-linear pattern is effectively used for expressing the pattern.
+
+\begin{lstlisting}[language=egison]
+(match-all '(1 2 5 9 4) (Multiset Integer) [(cons x (cons ,(+ x 1) _)) x]) ; (1 4)
+\end{lstlisting}
+
+\subsection{Tuple Patterns}
+
+Next, let me show an example of a tuple pattern.
+\todo{TODO}
+
+\begin{lstlisting}[language=egison]
+\end{lstlisting}
+
+\subsection{Logical Patterns}
+
+An or-pattern matches if one of the argument patterns matches the target.
+
+\begin{lstlisting}[language=egison]
+(match-all '(1 2 3) (List Integer) [(cons (or ,1 ,10) _) "OK"]) ; ("OK")
+\end{lstlisting}
+
+An and-pattern matches if all the argument patterns match the target.
+
+\begin{lstlisting}[language=egison]
+(match-all '(1 2 3) (List Integer) [(cons (and ,1 x) _) x]) ; (1)
+\end{lstlisting}
+
+A not-pattern matches if the argument pattern does not match the target.
+
+\begin{lstlisting}[language=egison]
+(match-all '(1 2 3) (List Integer) [(cons x (not (cons ,x _))) x]) ; (1)
+\end{lstlisting}
+
+\subsection{Later Patterns}
+
+A later pattern is used to change the order of the pattern-matching process. Basically, our pattern-matching system processes patterns from left to right in order. However, we sometimes want this order, for example, to refer to the value bound to the right side of pattern variables. A later pattern can be used for such purpose.
+
+\begin{lstlisting}[language=egison]
+(match-all '(1 1 2 3) (List Integer) [(cons (later ,x) (cons x _)) x]) ; (1)
+\end{lstlisting}
+
+
+\section{Applications of Pattern Matching for Non-free Data Types}
+
+Before introducing implementation of pattern matching, we demonstrate a pattern matching facility we are going to implement.
+We can execute programs shown in this section by loading a program in \cite{egisonScheme} on Gauche~\cite{gaucheWeb}.
+
+\subsection{Redefinitions of Basic List Processing Functions}
+
+Pattern matching for non-free data types allows us to confine recursion inside a pattern and enables more intuitive definitions of even the basic list processing functions such as \texttt{map}, \texttt{concat}, and \texttt{unique}.
+
+The \texttt{map} function is defined using pattern matching as follows.
+
+\begin{lstlisting}[language=egison]
+(define pm-map
+  (lambda (f xs)
+    (match-all xs (List Something)
+               ((join _ (cons x _)) (f x)))))
+
+(pm-map (lambda (x) (+ x 10)) `(1 2 3 4))
+; (11 12 13 14)
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(define pm-concat
+  (lambda (xss)
+    (match-all xss (List (List Something))
+               ((join _ (cons (join _ (cons x _)) _)) x))))
+
+(pm-concat `((1 2) (3) (4 5)))
+; (1 2 3 4 5)
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=egison]
+(define pm-unique-simple
+  (lambda (xs)
+    (match-all xs (List Eq)
+               ((join _ (cons x (not (join _ (cons ,x _))))) x))))
+
+(pm-unique-simple `(1 2 3 2 4))
+; (1 3 2 4)
+\end{lstlisting}
+
+{\footnotesize
+\begin{lstlisting}[language=egison]
+(define pm-unique
+  (lambda (xs)
+    (match-all xs (List Eq)
+               ((join (later (not (join _ (cons ,x _)))) (cons x _)) x))))
+
+(pm-unique `(1 2 3 2 4))
+; (1 2 3 4)
+\end{lstlisting}
+}
+
+\subsection{Implementation of SAT Solver}
+
+The program below describes the Davis-Putnam algorithm.
+
+\begin{lstlisting}[language=egison]
+(define sat
+  (lambda [vars cnf]
+    (match-first `[,vars ,cnf] `[,(Multiset Integer) ,(Multiset (Multiset Integer))]
+      ['[_ ()] #t]
+      ['[_ (cons () _)] #f]
+      ['[_ (cons (cons l ()) _)]
+       (sat (delete (abs l) vars) (assign-true l cnf))]
+      ['[(cons v vs) (not (cons (cons ,(neg v) _) _))]
+       (sat vs (assign-true v cnf))]
+      ['[(cons v vs) (not (cons (cons ,v _) _))]
+       (sat vs (assign-true (neg v) cnf))]
+      ['[(cons v vs) _]
+       (sat vs (append (resolve-on v cnf)
+               (delete-clauses-with v (delete-clauses-with (neg v) cnf))))])))
+\end{lstlisting}
+
+
+\subsection{Prime Numbers}
+
+\texttt{match-all} provided by \verb|stream-egison.scm| supports pattern matching with infinitely many results.
+
+\begin{lstlisting}[language=egison]
+(load "./stream-egison.scm")
+
+(define stream-primes (stream-filter bpsw-prime? (stream-iota -1)))
+
+(stream->list
+ (stream-take
+  (match-all stream-primes (List Integer)
+             [(join _ (cons p (cons ,(+ p 2) _)))
+              `(,p ,(+ p 2))])
+  10))
+; ((3 5) (5 7) (11 13) (17 19) (29 31) (41 43) (59 61) (71 73) (101 103) (107 109))
+
+(stream->list
+ (stream-take
+  (match-all stream-primes (List Integer)
+             [(join _ (cons p (cons (and (or ,(+ p 2) ,(+ p 4)) m) (cons ,(+ p 6) _))))
+              `(,p ,m ,(+ p 6))])
+  8))
+; ((5 7 11) (7 11 13) (11 13 17) (13 17 19) (17 19 23) (37 41 43) (41 43 47) (67 71 73))
+\end{lstlisting}
+
+
+\section{Algorithm of Egison Pattern Matching}\label{algorithm}
+
+
+\begin{lstlisting}[language=egison]
+(define processMStates
+  (lambda (mStates)
+    (match mStates
+      (() '())
+      ((('MState '{} ret) . rs)
+       (cons ret (processMStates rs)))
+      ((mState . rs)
+       (processMStates (append (processMState mState) rs))))))
+
+(define processMState
+  (lambda (mState)
+    (match mState
+      (('MState {[pvar 'Something t] . mStack} ret)
+       `((MState ,mStack ,(append ret `(,t)))))
+      (('MState {[p M t] . mStack} ret)
+       (let {[next-matomss (M p t)]}
+         (map (lambda (next-matoms) `(MState ,(append next-matoms mStack) ,ret)) next-matomss))))))
+\end{lstlisting}
+
+
+We omit the explanation of the algorithm for enumerating infinite results of pattern matching in this paper.
+It is implemented in \texttt{stream-egison.scm} in~\cite{egisonScheme}.
+
+\section{Implementation Method}\label{method}
+
+This section introduces a method for implementing the \texttt{match-all} macro in Scheme.
+
+\subsection{Compiling Matchers to \texttt{lambda}s}
+
+Matchers are defined as a function that takes a pattern and target, and returns next matching atoms.
+For example, the \texttt{Multiset} matcher is defined as follows.
+
+\begin{lstlisting}[language=egison]
+(define Multiset
+  (lambda (M)
+    (lambda (p t)
+      (match p
+             (('cons px py)
+              (map (lambda (xy) `((,px ,M ,(car xy)) (,py ,(Multiset M) ,(cadr xy))))
+                   (match-all t (List M)
+                              [(join hs (cons x ts)) `(,x ,(append hs ts))])))
+             (pvar
+              `(((,pvar Something ,t))))
+             ))))
+\end{lstlisting}
+
+
+\subsection{Compiling \texttt{match-all} to Application of \texttt{map}}
+
+The \texttt{match-all} expression is transformed into an application of \texttt{map} whose first argument uses \texttt{extract-pattern-variables} and second argument is the result of \texttt{gen-match-results}.
+\texttt{extract-pattern-variables} takes a pattern and returns a list of pattern variables that appear in the pattern.
+The order of the pattern variables corresponds with the order they appeared in the pattern.
+\texttt{gen-match-results} returns a list of gen-match-resultsing results.
+The gen-match-resultsing results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
+The order of the values in the gen-match-resultsing results must correspond with the order of pattern variables returned by \texttt{extract-pattern-variables}.
+
+\begin{lstlisting}[language=egison]
+(match-all t M [p e])
+;=> `(map (lambda ,(extract-pattern-variables p) ,e) ,(gen-match-results p M t))
+\end{lstlisting}
+
+The following macro do this transformation.
+%Values that are assigned to these pattern variables are calculated with \texttt{gen-match-results}.
+
+\begin{lstlisting}[language=egison]
+(define-macro (match-all t M clause)
+  (let* {[p (rewrite-pattern (list 'quasiquote (car clause)))]
+         [e (cadr clause)]}
+    `(map (lambda (ret) (apply (lambda ,(extract-pattern-variables p) ,e) ret))
+          (gen-match-results ,p ,M ,t))))
+\end{lstlisting}
+
+\texttt{gen-match-results} just calls \texttt{processMStates} introduced in Sect.~\ref{algorithm}.
+
+\begin{lstlisting}[language=egison]
+(define-macro (gen-match-results p M t)
+  `(processMStates (list (list 'MState (list (list ,p ,M ,t) ) {}))))
+\end{lstlisting}
+
+\subsection{Compiling value patterns to \texttt{lambda}s}
+
+Value patterns are transformed into \texttt{lambda} expressions using \texttt{rewrite-pattern} inside the macro.
+For example, ``\texttt{(cons x (cons y (cons ,x _)))}'' is transformed into ``\texttt{(cons x (cons y (cons (val ,(lambda (x y) x)) _)))}''.
+
+\begin{lstlisting}[language=egison]
+(define rewrite-pattern
+  (lambda (p)
+    (let {[ret (rewrite-pattern-helper p '())]}
+      (car ret))))
+
+(define rewrite-pattern-helper
+  (lambda (p xs)
+        (match p
+               (('unquote q) (cons (list 'val (list 'unquote `(lambda ,xs ,q))) xs))
+               (('quote (? list? ps))
+                (let {[ret (rewrite-patterns-helper ps xs)]}
+                  (cons `(quote ,(car ret)) (cdr ret))))
+               (('later p) (cons `(later ,p) xs))
+               ((c . args)
+                (let {[ret (rewrite-patterns-helper args xs)]}
+                  (cons `(,c . ,(car ret)) (cdr ret))))
+               ('_ (cons '_ xs))
+               (pvar (cons pvar (append xs `(,pvar)))))))
+
+(define rewrite-patterns-helper
+  (lambda (ps xs)
+    (match ps
+           (() (cons '() xs))
+           ((p . qs)
+            (let* {[ret (rewrite-pattern-helper p xs)]
+                   [p2 (car ret)]
+                   [xs2 (cdr ret)]
+                   [ret2 (rewrite-patterns-helper qs xs2)]
+                   [qs2 (car ret2)]
+                   [ys (cdr ret2)]}
+              (cons (cons p2 qs2)  ys))))))
+\end{lstlisting}
+
+
+\section{Future Work}\label{future}
+
+\subsection{Performance}
+
+\subsection{Importation of More Expressive Pattern Constructs}
+
+Extending our macros for supporting loop patterns~\cite{egi2018loop} is also future work.
+
+\subsection{Integration with Other Languages}
+
+Integration with a static type system remains as future work.
+Currently, we have an experimental Template Haskell implementation~\cite{egisonHaskell}.
+
+\section{Conclusion}\label{conclusion}
+
+\todo{Write something cool.}
+
+%\begin{acks}
+%Yuichi Nishiwaki
+%Mayuko Kori
+%\end{acks}
+
+% Bibliography
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{main}
+
+\end{document}
