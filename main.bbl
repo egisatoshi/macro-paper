@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{17}
+\begin{thebibliography}{23}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -79,6 +79,48 @@
 \shownote{[Online; accessed 21-Feb-2019].}
 
 
+\bibitem[\protect\citeauthoryear{??}{gau}{2019}]%
+        {gauchePM}
+ \bibinfo{year}{2019}\natexlab{}.
+\newblock \bibinfo{title}{{Gauche Users' Reference: Pattern matching}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://practical-scheme.net/gauche/man/gauche-refe/Pattern-matching.html}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 4-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{gui}{2019}]%
+        {guilePM}
+ \bibinfo{year}{2019}\natexlab{}.
+\newblock \bibinfo{title}{{Guile Reference Manual: Pattern Matching}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://www.gnu.org/software/guile/docs/docs-2.0/guile-ref/Pattern-Matching.html}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 4-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{chi}{2019}]%
+        {chickenPM}
+ \bibinfo{year}{2019}\natexlab{}.
+\newblock \bibinfo{title}{{Pattern matching - The CHICKEN Scheme wiki}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://wiki.call-cc.org/man/3/Pattern-matching}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 4-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{Bewig}{Bewig}{2007}]%
+        {bewig2007scheme}
+\bibfield{author}{\bibinfo{person}{Philip~L Bewig}.}
+  \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{{Scheme Request for Implementation 41: Streams}}.
+\newblock  (\bibinfo{year}{2007}).
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Burstall}{Burstall}{1969}]%
         {burstall1969proving}
 \bibfield{author}{\bibinfo{person}{Rod~M. Burstall}.}
@@ -133,6 +175,16 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Harrison}{Harrison}{2009}]%
+        {harrison2009handbook}
+\bibfield{author}{\bibinfo{person}{John Harrison}.}
+  \bibinfo{year}{2009}\natexlab{}.
+\newblock \bibinfo{booktitle}{\emph{Handbook of practical logic and automated
+  reasoning}}.
+\newblock \bibinfo{publisher}{Cambridge University Press}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{McBride, Morrison, and Pengelly}{McBride
   et~al\mbox{.}}{1969}]%
         {mcbride1969symbol}
@@ -152,6 +204,18 @@
 \newblock \showarticletitle{{Compilation of non-linear, second order patterns
   on S-expressions}}. In \bibinfo{booktitle}{\emph{Programming Language
   Implementation and Logic Programming}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Shinn, Cowan, Gleckler, et~al\mbox{.}}{Shinn
+  et~al\mbox{.}}{2013}]%
+        {shinn2013revised}
+\bibfield{author}{\bibinfo{person}{Alex Shinn}, \bibinfo{person}{John Cowan},
+  \bibinfo{person}{Arthur~A Gleckler}, {et~al\mbox{.}}}
+  \bibinfo{year}{2013}\natexlab{}.
+\newblock \bibinfo{title}{{Revised 7 Report on the Algorithmic Language
+  Scheme}}.
+\newblock
 \newblock
 
 
