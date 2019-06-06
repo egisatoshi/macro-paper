@@ -311,22 +311,24 @@ Here, I show the formal grammar of pattern-matching expressions of the proposed 
 \end{grammar}
 
 The \texttt{match-all} expression has the completely same meaning with that of Egison.
-The \texttt{match-first} has similar to Wright's \texttt{match} expression and it evaluate the body of the first match clause where the pattern matches with the target.
-The \texttt{match-first} expression can take multiple match clause.
+The \texttt{match-first} has similar to the traditional \texttt{match} expression; it evaluates the body of the first match clause whose pattern matches with the target.
+The \texttt{match-first} expression can take multiple match clauses.
+The only difference between \texttt{match-first} and the traditional \texttt{match} expression is \texttt{match-first} takes a matcher.
 
 This pattern-matching library provides several pattern constructs.
-The following subsection explains each of them.
+The following subsections explain each of them.
 
 \subsection{Wildcard and Pattern Variables}
 
 Symbols that appear in a pattern are handled as pattern variables.
 The value assigned to a pattern variable can be referred to in its right side of the pattern.
-`\verb|_|` represents a wildcard.
+``\verb|_|'' represents a wildcard.
+A wildcard is pattern-matched with a target in the same method with a pattern variable though no assignment is created for a wildcard.
 
 \subsection{Tuple Patterns}
 
 Tuple patterns are represented by prepending ``\texttt{'}'' to a list of patterns.
-Each element of a tuple pattern is pattern-matched with a corresponding target using a corresponding matcher. \todo{fix}
+Each element of a tuple pattern is pattern-matched with the corresponding element of a target list using the corresponding element of a matcher list as a matcher.
 
 \begin{lstlisting}[language=egison]
 (match-all '(1 2) '(Integer Integer) ['(x y) `(,x ,y)]) ; ((1 2))
@@ -335,17 +337,21 @@ Each element of a tuple pattern is pattern-matched with a corresponding target u
 
 \subsection{Inductive Patterns}
 
-When the pattern is a list, the first element is always handed as a pattern constructor.
-For example, \texttt{join} and \texttt{cons} that appear in ``\texttt{(join _ (cons x _))}'' are pattern constructors.
+When the pattern is a list, the first element is always handled as a pattern constructor.
+For example, \texttt{join} and \texttt{cons} that appear in ``\verb|(join _ (cons x _))|'' are pattern constructors.
 The pattern-matching algorithm for handling them is defined and retained in matchers.
+For example, in the \texttt{List} matcher, \texttt{join} is defined as a pattern constructor that divides a collection into a head and tail part, and \texttt{cons} is defined as a pattern constructor that divides a collection into the head element and rest.
+As a result, the following pattern matches each element of the target list.
+
+\begin{lstlisting}[language=egison]
+(match-all '(1 2 3) (List Integer) [(join _ (cons x _)) x]) ; (1 2 3)
+\end{lstlisting}
 
 \subsection{Value Patterns}
 
 Value patterns are represented by prepending ``\texttt{,}'' to an expression that is evaluated to a value.
 Value patterns are used for expressing non-linear patterns.
 The pattern-matching algorithms for value patterns are also defined in matchers.
-
-Let me show an example of a value pattern.
 The program below pattern-matches a list \texttt{(1 2 3 2 1)} as a multiset.
 The pattern in the program below matches if the target collection contains pairs of elements in sequence.
 
@@ -355,27 +361,25 @@ The pattern in the program below matches if the target collection contains pairs
 
 \subsection{Logical Patterns}
 
+Logical pattern constructs, or-patterns, and-patterns, and not-patterns are useful also in Egison.
+Its usage is similar to that in the existing languages.
 An or-pattern matches if one of the argument patterns matches the target.
+An and-pattern matches if all the argument patterns match the target.
+A not-pattern matches if the argument pattern does not match the target.
 
 \begin{lstlisting}[language=egison]
 (match-all '(1 2 3) (List Integer) [(cons (or ,1 ,10) _) "OK"]) ; ("OK")
-\end{lstlisting}
-
-\noindent An and-pattern matches if all the argument patterns match the target.
-
-\begin{lstlisting}[language=egison]
 (match-all '(1 2 3) (List Integer) [(cons (and ,1 x) _) x]) ; (1)
-\end{lstlisting}
-
-\noindent A not-pattern matches if the argument pattern does not match the target.
-
-\begin{lstlisting}[language=egison]
 (match-all '(1 2 3) (List Integer) [(cons x (not (cons ,x _))) x]) ; (1)
 \end{lstlisting}
 
 \subsection{Later Patterns}
 
-A later pattern is used to change the order of the pattern-matching process. Basically, our pattern-matching system processes patterns from left to right in order. However, we sometimes want this order, for example, to refer to the value bound to the right side of pattern variables. A later pattern can be used for such purpose.
+A later pattern is used to change the order of the pattern-matching process.
+Basically, the pattern-matching system of Egison processes patterns from left to right in order.
+However, we sometimes want change this order, for example, to refer to the value bound to the right side of pattern variables.
+A later pattern can be used for such purpose.
+The pattern inside a later pattern is pattern-matched after pattern matching for the other parts of the pattern succeeded.
 
 \begin{lstlisting}[language=egison]
 (match-all '(1 1 2 3) (List Integer) [(cons (later ,x) (cons x _)) x]) ; (1)
@@ -746,13 +750,12 @@ data Pattern a where
 
 \section{Conclusion}\label{conclusion}
 
-This paper proposed a method for compiling a complicate pattern-matching procedure for functional programming languages with high-ordered functions.
-extraction of pattern variables and destruction of targets.
-The proposed method allows us to implement very expressive pattern matching in a short program; the macros and the pattern-matching procedure is implemented in less than 150 lines of code (\texttt{egison.scm} of~\cite{egisonScheme}).
-This is a good proof of extensibility of Scheme.\todo{fix}
+This paper proposed a method for compiling Egison pattern-matching expressions that can describe very expressive patterns for non-free data types but has a large complicate pattern-matching procedure.
+The proposed method made an implementation of the pattern-matching system of Egison very short; the macros and the pattern-matching procedure is implemented in less than 150 lines of Scheme code (\texttt{egison.scm} of~\cite{egisonScheme}).
+This is also a good proof of extensibility of Scheme and Lisp.
 
 This pattern matching library will help education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
-This pattern matching library will help research of pattern matching by providing a easy method for extending it.
+This pattern matching library will also help research of pattern matching by providing a easy method for developing new pattern-matching extensions.
 I hope this work leads to the further development and  propagation of advanced pattern matching.
 
 %\begin{acks}
