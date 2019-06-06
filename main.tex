@@ -127,8 +127,8 @@
   % Inquiry:
   They implemented their proposal in an interpreter of the Egison programming language.
   % Approach:
-  This paper presents a method for compiling this Egison pattern matching by introducing Scheme macros for importing Egison pattern matching into Scheme.
-  We achieved that by transforming a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target.
+  This paper presents a method for compiling this Egison pattern matching by introducing Scheme macros.
+  The key idea of this method is transformation of a matcher to a function that takes a pattern and a target, and returns lists of \emph{matching atoms}, triples of a pattern, a matcher, and a target.
   % Knowledge
   This paper also demonstrates the expressiveness of this pattern-matching system by showing redefinitions of the basic list processing functions such as \texttt{map}, \texttt{concat}, or \texttt{unique}, and implementation of a SAT solver as a more practical mathematical algorithm.
   
@@ -476,7 +476,7 @@ We can compare this Scheme program with the OCaml implementation of the same alg
 \end{lstlisting}
 
 
-\subsection{Prime Numbers}
+\subsection{Twin Primes and Prime Triplets}
 
 \texttt{match-all} provided by \verb|stream-egison.scm| supports pattern matching with infinitely many results.
 A library for streams described in SRFI 41~\cite{bewig2007scheme} is used for handling lazy lists.
@@ -504,41 +504,47 @@ The following \texttt{match-all} expressions extract an infinite list of twin pr
 ; ((5 7 11) (7 11 13) (11 13 17) (13 17 19) (17 19 23) (37 41 43) (41 43 47) (67 71 73))
 \end{lstlisting}
 
+In the languages whose default evaluation strategy is non-strict as Haskell and Egison, we do not need to distinguish these two \texttt{match-all} implementations.
 
 \section{Algorithm of Egison Pattern Matching}\label{algorithm}
 
-This section explains and implements the pattern-matching algorithm of Egison, which is described in Sect. 5 and Sect. 7 of~\cite{egi2018aplas}.
+This section explains and implements the pattern-matching algorithm of Egison, which is described in detail in Sect. 5 and Sect. 7 of the original paper of Egison~\cite{egi2018aplas}.
 After the explanation of the pattern-matching algorithm, I introduce a simplified implementation of this algorithm in Scheme.
-This implementation is called by the macros whose implementation are introduced in Sect.~\ref{method}.
+This implementation is called by the proposed macros whose implementation are introduced in Sect.~\ref{method}.
 
-In Egison, pattern matching is implemented as reductions of stacks of \emph{matching atoms}.
+\medskip
+
+First, I start by explaining the pattern-matching algorithm of Egison briefly.
+In Egison, pattern matching is implemented as reductions of \emph{matching states}.
+A matching state consists of a stack of \emph{matching atoms} and an intermediate result of pattern matching.
 A matching atom is a triple of a pattern, target, and matcher.
-In each step of a pattern-matching process, the top matching atom is popped out.
+In each step of a pattern-matching process, the top matching atom of the stack of matching atoms is popped out.
 From this matching atom, a list of lists of next matching atoms is calculated.
-Each list of the next matching atoms is pushed to the stack of matching atoms.
-As a result, a single stack of matching atom is reduced to multiple stacks of matching atoms in a reduction step.
-Pattern matching is recursively executed for each stack of matching atoms.
-When a stack becomes empty, it means pattern matching for this stack succeeded.
+Each list of the next matching atoms is pushed to the stack of matching atoms of the matching state.
+As a result, a single matching state is reduced to multiple stacks of matching states in a single reduction step.
+Pattern matching is recursively executed for each matching state.
+When a stack becomes empty, it means pattern matching for this matching state succeeded.
 Sect. 5.1 of~\cite{egi2018aplas} shows a sample of this reduction.
 
 \medskip
 
 The \texttt{processMState} function below implements this process.
-\texttt{processMState} takes a \emph{matching state} as its argument.
-A matching atom consists of a stack of matching atoms and an intermediate result of pattern matching.
+\texttt{processMState} takes a matching state as its argument and returns a list of next matching states.
+In the program below, several matching clauses are omitted for simplification.
+``\texttt{...}'' in the 4th line represents this omission.
 
-The match clause in the 4th and 5th lines describes the case where the matcher of the top matching atom is \texttt{Something}.
-In this case, the value \texttt{t} is added to the intermediate pattern-matching result.
+The match clause in the 5th and 6th lines describes the case where the matcher of the top matching atom is \texttt{Something}.
+In this case, the value of the target \texttt{t} is added to the intermediate pattern-matching result.
 \texttt{Something} is the only built-in matcher of the Egison pattern-matching system.
-\texttt{something} can handle only wildcards or pattern variables, and is a only matcher that can bind a value to a pattern variable.
+\texttt{Something} can handle only wildcards or pattern variables, and is a only matcher that can bind a value to a pattern variable.
 The reason why an intermediate result is a list of values and not a list of pairs of a symbol and a value is explained in Sect.~\ref{method-map}.
 
-The match clause in the 6th-8th lines describes the general case.
-The list of lists of next matching atoms are calculated in the 7th line.
-In this Scheme implementation, a matcher is a function that takes a pattern and a target, and returns a list of lists of the next matching atoms.
+The match clause in the 7th-9th lines describes the general case.
+The list of lists of next matching atoms are calculated in the 8th line.
+In this Scheme implementation, a matcher is a function that takes a pattern and a target, and returns a list of lists of the next matching atoms as explained again in Sect.~\ref{method-matcher}.
 
 In the program below, the matching clauses for and-patterns, or-patterns, not-patterns, and later patterns introduced in Sect.~\ref{usage} are omitted.
-We can implement these pattern constructs by adding match clauses for them here.
+We can implement these pattern constructs by adding match clauses for them.
 We can see the full implementation of \texttt{processMState} in \texttt{egison.scm} of~\cite{egisonScheme}.
 
 \begin{lstlisting}[language=egison]
@@ -557,12 +563,12 @@ We can see the full implementation of \texttt{processMState} in \texttt{egison.s
 
 The \texttt{processMStates} below implements the whole pattern-matching process while the above \texttt{processMState} implements a step of this pattern-matching process.
 \texttt{processMStates} takes a list of matching states as its argument and returns all pattern-matching results.
-The first match clause (the 5th line) describes the case where a list of matching states is empty.
-In this case, \texttt{processMStates} simply returns an empty list and terminates.
-The second match clause (the 6th and 7th line) describes the case where the stack of the first matching state is empty.
+The first match clause (the 4th line) describes the case where a list of matching states is empty.
+In this case, \texttt{processMStates} simply returns an empty list and terminates the pattern-matching procedure.
+The second match clause (the 5th and 6th line) describes the case where the stack of the first matching state is empty.
 In this case, the intermediate pattern-matching result of this matching state is added to the return value of \texttt{processMStates} as a final result of pattern matching.
 \texttt{processMStates} is recursively called for the rest matching states.
-The third match clause (the 8th and 9th line) describes the general case.
+The third match clause (the 7th and 8th line) describes the general case.
 In this case, \texttt{processMState} is called for the first matching state.
 \texttt{processMStates} is recursively called for the result of appending the result of this \texttt{processMState} and the rest matching states.
 
@@ -577,19 +583,17 @@ In this case, \texttt{processMState} is called for the first matching state.
        (processMStates (append (processMState mState) rs))))))
 \end{lstlisting}
 
-Here, I simplify the algorithm by omitting the function to traverse an infinitely large search tree.
-I omit the explanation of the algorithm for enumerating infinite results of pattern matching in this paper.
-It is implemented in \texttt{stream-egison.scm} of~\cite{egisonScheme}.
-
+The above implementation is from \texttt{egison.scm} of~\cite{egisonScheme} that does not support pattern matching with infinitely many results.
+In \texttt{processMStates} of \texttt{stream-egison.scm}, the traversal of an infinitely large search tree is implemented that is explained in Sect.~5.2 of~\cite{egi2018aplas}.
 
 \section{Implementation Method}\label{method}
 
 This section introduces a method for implementing the \texttt{match-all} macro in Scheme.
-Three tricks, which are explained in Sect.~\ref{method-matcher}, Sect.~\ref{method-map}, and Sect.~\ref{method-val-pat} respectively, enable this implementation.
+Three tricks, which are explained in Sect.~\ref{method-matcher}, Sect.~\ref{method-map}, and Sect.~\ref{method-val-pat} enable this implementation.
 
 \subsection{Compiling Matchers to \texttt{lambda}s}\label{method-matcher}
 
-In the original paper of Egison pattern matching~\cite{egi2018aplas}, a matcher is a special object that retains a pattern-matching algorithm.
+In the Egison pattern matching system~\cite{egi2018aplas}, a matcher is a special object that retains a pattern-matching algorithm.
 In the proposed Scheme macros, for encoding a matcher with lambda to avoid introducing new built-in objects, a matcher is defined as a function that takes a pattern and a target, and returns a list of lists of next matching atoms.
 For example, the \texttt{Multiset} matcher is defined as follows.
 
@@ -611,16 +615,16 @@ For example, the \texttt{Multiset} matcher is defined as follows.
         (pvar `{{[,pvar Something ,t]}})))))
 \end{lstlisting}
 
-In the above program, we uses ``\texttt{\{\}}'' and ``\texttt{[]}'' separately.
+In the above program, we uses ``\texttt{\{\}}'' and ``\texttt{[]}'' separately to enhance the readability of the program.
 We use braces ``\texttt{\{\}}'' for enclosing a list.
 For example, a list of matching atoms is enclosed with braces.
 We use brackets ``\texttt{[]}'' for enclosing a tuple.
 For example, a matching atom, which is a triple of a pattern, a matcher, and a target, is enclosed with brackets.
 
-As a matcher definition of Egison~\cite{egi2018aplas} that consists of matcher clauses that describe pattern matching for patterns to describe pattern-matching algorithms for each pattern, the above matcher definition describe pattern matching for patterns.
+As a matcher definition of Egison~\cite{egi2018aplas} that consists of matcher clauses that describe pattern matching for patterns to describe pattern-matching algorithms for each pattern, the above matcher definition describe pattern matching for patterns.\todo{fix}
 For pattern matching against patterns, \texttt{match} is used.
 
-The first match clause (the 5th line) describes a pattern-matching algorithm for the \texttt{nil} pattern that matches with an empty list.
+The first match clause (the 5th line) describes the pattern-matching algorithm for the \texttt{nil} pattern that matches with an empty list.
 When the target list is empty, this match clause returns a list that consists of an empty list of matching atoms.
 Otherwise, this match clause returns an empty list.
 That means pattern matching fails.
@@ -647,9 +651,9 @@ This match clause creates the next matching atom by just changing the matcher fr
 The \texttt{match-all} expression is transformed into an application of \texttt{map} whose first argument is a function whose argument is a return value of \texttt{extract-pattern-variables}, and second argument is the result of \texttt{gen-match-results}.
 The \texttt{extract-pattern-variables} function takes a pattern and returns a list of pattern variables that appear in the pattern.
 The order of the pattern variables corresponds with the order they appeared in the pattern.
-The \texttt{gen-match-results} function returns a list of gen-match-resultsing results.
-The gen-match-resultsing results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
-The order of the values in the gen-match-resultsing results must correspond with the order of pattern variables returned by \texttt{extract-pattern-variables}.
+The \texttt{gen-match-results} function takes a pattern, a target, and a matcher, and returns a list of pattern-matching results.
+This pattern-matching results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
+The order of the values in the \texttt{gen-match-results} must correspond with the order of pattern variables returned by \texttt{extract-pattern-variables}.
 
 \begin{lstlisting}[language=egison]
 (match-all t M [p e])
@@ -677,9 +681,9 @@ An initial matching state ``\verb|(MState {[p M t]} {})|'' is created from ``\te
 
 \medskip
 
-Thus, by separating the extraction of pattern variables and the calculation of pattern-matching results, we can compile such a complicated pattern matching process.
-However, this separation disable to apply the existing method for compiling pattern matching efficiently.
-\todo{FIX}
+Thus, by separating the extraction of pattern variables and the calculation of pattern-matching results, we can compile such a large pattern matching process.
+
+%However, this separation disable to apply the existing method for compiling pattern matching efficiently.
 
 \subsection{Compiling value patterns to \texttt{lambda}s}\label{method-val-pat}
 
@@ -726,11 +730,11 @@ Extending our macros for supporting loop patterns~\cite{egi2018loop} is also fut
 \subsection{Integration with Statically Typed Languages}
 
 Integration of Egison pattern matching with a programming language with a static type system remains as future work.
-We have an experimental Template Haskell implementation~\cite{egisonHaskell}.
-Currently, this Haskell implementation has a problem that it does not allow users to define new pattern constructors.
+Though, we have an experimental Template Haskell implementation~\cite{egisonHaskell}, this Haskell implementation currently has a problem that it does not allow users to define new pattern constructors.
 The Haskell program below shows the definition of \texttt{Pattern a}, which is a data type for patterns against data whose type is \texttt{a}.
 Haskell does not allow to add new data constructors to a data type defined in a different file.
 Therefore, users cannot add a new pattern constructor in their program.
+Currently, we are working to find a method for avoiding this problem.
 
 \begin{lstlisting}[language=haskell]
 data Pattern a where
@@ -750,12 +754,12 @@ data Pattern a where
 
 \section{Conclusion}\label{conclusion}
 
-This paper proposed a method for compiling Egison pattern-matching expressions that can describe very expressive patterns for non-free data types but has a large complicate pattern-matching procedure.
+This paper proposed a method for compiling Egison pattern-matching expressions that can describe very expressive pattern matching for non-free data types but has a large pattern-matching procedure.
 The proposed method made an implementation of the pattern-matching system of Egison very short; the macros and the pattern-matching procedure is implemented in less than 150 lines of Scheme code (\texttt{egison.scm} of~\cite{egisonScheme}).
-This is also a good proof of extensibility of Scheme and Lisp.
+This implementation is also a good proof of extensibility of Scheme and Lisp.
 
-This pattern matching library will help education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
-This pattern matching library will also help research of pattern matching by providing a easy method for developing new pattern-matching extensions.
+I believe that this pattern matching library will help education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
+I also believe that this pattern matching library will help research of pattern matching by providing a easy method for developing new pattern-matching extensions.
 I hope this work leads to the further development and  propagation of advanced pattern matching.
 
 %\begin{acks}
