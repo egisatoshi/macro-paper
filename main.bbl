@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{26}
+\begin{thebibliography}{27}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -47,9 +47,9 @@
 \shownote{[Online; accessed 14-June-2018].}
 
 
-\bibitem[\protect\citeauthoryear{??}{egi}{2018}]%
+\bibitem[\protect\citeauthoryear{??}{egi}{2018a}]%
         {egisonScheme}
- \bibinfo{year}{2018}\natexlab{}.
+ \bibinfo{year}{2018}\natexlab{a}.
 \newblock \bibinfo{title}{{egison/egison-scheme: Scheme Macros for Egison
   Pattern Matching}}.
 \newblock
@@ -66,6 +66,17 @@
 \newblock
 \newblock
 \shownote{[Online; accessed 1-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{egi}{2018b}]%
+        {egisonLisp}
+ \bibinfo{year}{2018}\natexlab{b}.
+\newblock \bibinfo{title}{{zeptometer/egison-common-lisp: Common Lisp Macros
+  for Egison Pattern Matching}}.
+\newblock
+\newblock
+\newblock
+\shownote{[Online; accessed 4-June-2019].}
 
 
 \bibitem[\protect\citeauthoryear{??}{egi}{2019}]%
