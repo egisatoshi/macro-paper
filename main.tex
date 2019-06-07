@@ -3,6 +3,7 @@
 % page limit: 14 pages
 
 \usepackage{booktabs} % For formal tables
+\usepackage{hhline}
 
 % TOG prefers author-name bib system with square brackets
 %\citestyle{acmauthoryear}
@@ -43,7 +44,7 @@
 \lstdefinelanguage{egison}{%
   sensitive = true,
   alsoletter={-},
-  keywords = [1]{match-all, match-all-dfs, match-first, define, lambda, and, or, not, later, matcher, something, define-macro, let},
+  keywords = [1]{match-all, match-all-dfs, match-first, define, lambda, and, or, not, later, matcher, something, Something, define-macro, let},
   comment=[l]{;},
 }%
 \lstset{%
@@ -122,13 +123,13 @@
 \begin{abstract}
   % Context:
   Pattern matching is an important feature of programming languages for data abstraction.
-  Many pattern matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable.
+  Many pattern-matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable.
   Among them, a pattern-matching system proposed by Egi and Nishiwaki features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking, (ii) extensibility of pattern-matching algorithms, and (iii) polymorphic patterns.
   % Inquiry:
   They implemented their proposal in an interpreter of the Egison programming language.
   % Approach:
   This paper presents a method for compiling this Egison pattern matching by introducing Scheme macros.
-  The key idea of this method is transformation of a matcher to a function that takes a pattern and a target, and returns lists of \emph{matching atoms}, triples of a pattern, a matcher, and a target.
+  The key idea of this method is transformation of a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target.
   % Knowledge
   This paper also demonstrates the expressiveness of this pattern-matching system by showing redefinitions of the basic list processing functions such as \texttt{map}, \texttt{concat}, or \texttt{unique}, and implementation of a SAT solver as a more practical mathematical algorithm.
   
@@ -166,12 +167,12 @@ Pattern matching allows us to replace many verbose function applications for dec
 The modern functional programming languages such as Haskell and OCaml support pattern matching for algebraic data types.
 Many Scheme implementations also have a similar pattern-matching facility~\cite{gauchePM} though Scheme does not contain pattern matching for algebraic data types in its specification, R7RS~\cite{shinn2013revised}.
 
-However, there are data types that are not algebraic data types and for which we cannt use the common pattern-matching facility.
+However, some data types are not algebraic data types and we cannot use the common pattern-matching facility for them.
 These data types are called \emph{non-free} data types.
 Non-free data have no canonical form as data of algebraic data types.
 For example, multisets are non-free data types because the multiset $\{a,b,b\}$ has two other equivalent but syntactically different forms $\{b,a,b\}$ and $\{b,b,a\}$.
 
-Many pattern matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable~\cite{Hudak07ahistory,turner2012some}.
+Many pattern-matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable~\cite{Hudak07ahistory,turner2012some}.
 Among them, a pattern-matching system proposed by Egi and Nishiwaki~\cite{egi2018aplas} features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking, (ii) extensibility of pattern-matching algorithms, and (iii) polymorphic patterns.
 However, the pattern-matching algorithm proposed by them is not as simple as the earlier pattern-matching extensions that can be compiled into simple conditional branches and they implemented their proposal only in an interpreter of the Egison programming language.
 As a result, a method for importing their pattern matching system into the other functional programming languages was not obvious.
@@ -186,6 +187,7 @@ Sect.~\ref{usage} introduces the usage of the proposed Scheme macros for pattern
 Sect.~\ref{apps} shows practical examples of pattern matching for non-free data types.
 Sect.~\ref{algorithm} explains the pattern matching algorithm of Egison and implementation of this algorithm in Scheme.
 Sect.~\ref{method} explains the implementation of the proposed macros.
+Sect.~\ref{performance} discusses the performance of the proposed macros.
 Sect.~\ref{future} mentions the remained work.
 Finally, Sect.~\ref{conclusion} concludes the paper.
 
@@ -202,7 +204,7 @@ In~\cite{burstall1969proving}, \texttt{concat} is defined in the modern fashion.
 After that, user-defined algebraic data types are invented.
 HOPE~\cite{burstall1980hope} proposed in 1980 by Burstall, MacQueen, and Sannella is a well-known language that introduced user-defined algebraic data types and pattern matching for them.
 
-In 1980s, more expressive pattern matching for wider range of data types started to be pursued.
+In the 1980s, more expressive pattern matching for a wider range of data types started to be pursued.
 Miranda's laws~\cite{thompson1986laws,thompson1990lawful} and Wadler's views~\cite{wadler1987views} are earlier such research.
 They discarded the assumption that one-to-one correspondence should exist between patterns and data constructors.
 They enable pattern matching for data types whose data have multiple representation forms.
@@ -213,16 +215,16 @@ They neither support non-linear patterns and pattern matching with multiple resu
 These works lead to more expressive extensions of pattern matching.
 Erwig's active patterns~\cite{erwig1996active} proposed in 1996 and Tullsen's first class patterns~\cite{tullsen2000first} proposed in 2000 are such extensions.
 Both extensions allow users to customize the pattern-matching algorithm for each pattern constructor.
-Active patterns supports non-linear patterns though they does not support pattern matching with multiple results.
-First class patterns supports pattern matching with backtracking though they does not support pattern matching with multiple results.
+Active patterns support non-linear patterns though they do not support pattern matching with multiple results.
+First class patterns support pattern matching with backtracking though they do not support pattern matching with multiple results.
 
 Egison~\cite{egisonWeb} is a programming language with a pattern matching system that is extensible and supports both of non-linear patterns and multiple results~\cite{egi2018aplas}.
 The expressions below match a collection that consists of $n$ zeros as a multiset of integers with patterns that match a collection with sequential pairs and triples.
 The \texttt{match-all} expression used in the program below returns a collection evaluating the body expression for all the pattern=matching results.
 The target collection contains neither sequential pairs nor triples.
-As a result, both expression return an empty collection.
+As a result, both expressions return an empty collection.
 Egison uses backtracking for traversing a search tree.
-Therefore, the time for returning the result is same for both expressions.
+Therefore, the time for returning the result is the same for both expressions.
 
 \begin{lstlisting}[language=egison]
 (match-all (take n (repeat 0)) (multiset integer) [<cons $x <cons ,(+ x 1) _>> x])
@@ -353,7 +355,7 @@ Value patterns are represented by prepending ``\texttt{,}'' to an expression tha
 Value patterns are used for expressing non-linear patterns.
 The pattern-matching algorithms for value patterns are also defined in matchers.
 The program below pattern-matches a list \texttt{(1 2 3 2 1)} as a multiset.
-The pattern in the program below matches if the target collection contains pairs of elements in sequence.
+The pattern in the program below matches if the target collection contains pairs of elements in a sequence.
 
 \begin{lstlisting}[language=egison]
 (match-all '(1 2 5 9 4) (Multiset Integer) [(cons x (cons ,(+ x 1) _)) x]) ; (1 4)
@@ -377,7 +379,7 @@ A not-pattern matches if the argument pattern does not match the target.
 
 A later pattern is used to change the order of the pattern-matching process.
 Basically, the pattern-matching system of Egison processes patterns from left to right in order.
-However, we sometimes want change this order, for example, to refer to the value bound to the right side of pattern variables.
+However, we sometimes want to change this order, for example, to refer to the value bound to the right side of pattern variables.
 A later pattern can be used for such purpose.
 The pattern inside a later pattern is pattern-matched after pattern matching for the other parts of the pattern succeeded.
 
@@ -388,7 +390,7 @@ The pattern inside a later pattern is pattern-matched after pattern matching for
 
 \section{Applications of Pattern Matching for Non-free Data Types}\label{apps}
 
-Before introducing implementation of pattern matching, this section demonstrate the pattern matching facility implemented in this paper to show its usefulness.
+Before introducing the implementation of pattern matching, this section demonstrates the pattern matching facility implemented in this paper to show its usefulness.
 We can execute programs shown in this section by loading a program in \cite{egisonScheme} on Gauche~\cite{gaucheWeb}.
 
 \subsection{Redefinitions of Basic List Processing Functions}
@@ -536,11 +538,11 @@ In the program below, several matching clauses are omitted for simplification.
 The match clause in the 5th and 6th lines describes the case where the matcher of the top matching atom is \texttt{Something}.
 In this case, the value of the target \texttt{t} is added to the intermediate pattern-matching result.
 \texttt{Something} is the only built-in matcher of the Egison pattern-matching system.
-\texttt{Something} can handle only wildcards or pattern variables, and is a only matcher that can bind a value to a pattern variable.
-The reason why an intermediate result is a list of values and not a list of pairs of a symbol and a value is explained in Sect.~\ref{method-map}.
+\texttt{Something} can handle only wildcards or pattern variables, and is an only matcher that can bind a value to a pattern variable.
+The reason why an intermediate result is a list of values and not a list of pairs of a symbol and value is explained in Sect.~\ref{method-map}.
 
 The match clause in the 7th-9th lines describes the general case.
-The list of lists of next matching atoms are calculated in the 8th line.
+The list of lists of next matching atoms is calculated in the 8th line.
 In this Scheme implementation, a matcher is a function that takes a pattern and a target, and returns a list of lists of the next matching atoms as explained again in Sect.~\ref{method-matcher}.
 
 In the program below, the matching clauses for and-patterns, or-patterns, not-patterns, and later patterns introduced in Sect.~\ref{usage} are omitted.
@@ -564,7 +566,7 @@ We can see the full implementation of \texttt{processMState} in \texttt{egison.s
 The \texttt{processMStates} below implements the whole pattern-matching process while the above \texttt{processMState} implements a step of this pattern-matching process.
 \texttt{processMStates} takes a list of matching states as its argument and returns all pattern-matching results.
 The first match clause (the 4th line) describes the case where a list of matching states is empty.
-In this case, \texttt{processMStates} simply returns an empty list and terminates the pattern-matching procedure.
+In this case, \texttt{processMStates} returns an empty list and terminates the pattern-matching procedure.
 The second match clause (the 5th and 6th line) describes the case where the stack of the first matching state is empty.
 In this case, the intermediate pattern-matching result of this matching state is added to the return value of \texttt{processMStates} as a final result of pattern matching.
 \texttt{processMStates} is recursively called for the rest matching states.
@@ -621,8 +623,9 @@ For example, a list of matching atoms is enclosed with braces.
 We use brackets ``\texttt{[]}'' for enclosing a tuple.
 For example, a matching atom, which is a triple of a pattern, a matcher, and a target, is enclosed with brackets.
 
-As a matcher definition of Egison~\cite{egi2018aplas} that consists of matcher clauses that describe pattern matching for patterns to describe pattern-matching algorithms for each pattern, the above matcher definition describe pattern matching for patterns.\todo{fix}
-For pattern matching against patterns, \texttt{match} is used.
+As a matcher definition of Egison~\cite{egi2018aplas}, a matcher definition consists of match clauses for pattern matching against a pattern.
+Each match clause describes a pattern-matching algorithm against the matched pattern.
+For pattern matching against patterns, the traditional Wright's \texttt{match} expression~\cite{wright1993pattern} is used.
 
 The first match clause (the 5th line) describes the pattern-matching algorithm for the \texttt{nil} pattern that matches with an empty list.
 When the target list is empty, this match clause returns a list that consists of an empty list of matching atoms.
@@ -652,7 +655,7 @@ The \texttt{match-all} expression is transformed into an application of \texttt{
 The \texttt{extract-pattern-variables} function takes a pattern and returns a list of pattern variables that appear in the pattern.
 The order of the pattern variables corresponds with the order they appeared in the pattern.
 The \texttt{gen-match-results} function takes a pattern, a target, and a matcher, and returns a list of pattern-matching results.
-This pattern-matching results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
+These pattern-matching results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
 The order of the values in the \texttt{gen-match-results} must correspond with the order of pattern variables returned by \texttt{extract-pattern-variables}.
 
 \begin{lstlisting}[language=egison]
@@ -688,7 +691,7 @@ Thus, by separating the extraction of pattern variables and the calculation of p
 \subsection{Compiling value patterns to \texttt{lambda}s}\label{method-val-pat}
 
 This section explains a method for compiling value patterns.
-A value pattern is transformed into a \texttt{lambda} expression whose arguments are pattern variables that appear in the left-side of the value pattern.
+A value pattern is transformed into a \texttt{lambda} expression whose arguments are pattern variables that appear in the left side of the value pattern.
 For example, ``\texttt{(cons x (cons y (cons ,x (cons z _))))}'' is transformed into ``\texttt{(cons x (cons y (cons (val ,(lambda (x y) x)) (cons z _))))}''.
 The \texttt{rewrite-pattern} function called inside the macro does this transformation.
 
@@ -706,12 +709,14 @@ The following program shows a match clause in \texttt{processMState} for handlin
 \end{lstlisting}
 
 \noindent
-When the pattern of the top matching atom is a value pattern, it applies intermediate pattern-matching result to the function in the value pattern and passes it to the matcher.
+When the pattern of the top matching atom is a value pattern, it applies the intermediate pattern-matching result to the function in the value pattern and passes it to the matcher.
 This pattern is handled by the third match clause of the \texttt{Multiset} matcher in Sect.~\ref{method-matcher}, for example.
 
-\section{Future Work}\label{future}
-
-%\subsection{Performance}
+\section{Performance}
+%
+%\begin{lstlisting}[language=egison]
+%
+%\end{lstlisting}
 %
 %Efficient data structures are needed.
 %
@@ -723,14 +728,112 @@ This pattern is handled by the third match clause of the \texttt{Multiset} match
 %
 %lazy evaluation
 
+\subsection{Benchmark Result}
+
+Scheme is faster than Egison.
+
+\begin{tabular}{llll}
+\begin{tabular}{|l||l|l|l|} \hline
+Scheme & n=1000 & n=2000 & n=4000 \\ \hhline{|=#=|=|=|}
+\texttt{unjoin} & 0.676 & 2.877 & 14.518 \\ \hline
+\end{tabular}
+& & &
+\begin{tabular}{|l||l|l|l|} \hline
+Egison & n=100 & n=200 & n=400 \\ \hhline{|=#=|=|=|}
+\texttt{unjoin} & 1.034 & 3.627 & 13.971 \\ \hline
+\end{tabular}
+\end{tabular}
+
+\medskip
+
+\begin{lstlisting}[language=egison]
+(match-all (iota n 1) (List Something) ((join xs ys) `(,xs ,ys)))
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(match-all (between 1 n) (list something) [<join $xs $ys> [xs ys]])
+\end{lstlisting}
+
+
+\begin{tabular}{llll}
+\begin{tabular}{|l||l|l|l|} \hline
+Scheme & n=500 & n=1000 & n=2000 \\ \hhline{|=#=|=|=|}
+\texttt{perm2} & 1.408 & 6.066 & 26.423 \\ \hline
+\end{tabular}
+& & &
+\begin{tabular}{|l||l|l|l|} \hline
+Egison & n=100 & n=200 & n=400 \\ \hhline{|=#=|=|=|}
+\texttt{perm2} & 2.107 & 11.347 & 81.84 \\ \hline
+\end{tabular}
+\end{tabular}
+
+\medskip
+
+\begin{lstlisting}[language=egison]
+(match-all (iota n 1) (List Something) ((join _ (cons x (join _ (cons y _)))) `(,x ,y)))
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(match-all (between 1 n) (list something) [<join _ <cons $x <join _ <cons $y _>>>> [x y]])
+\end{lstlisting}
+
+
+\begin{tabular}{llll}
+\begin{tabular}{|l||l|l|l|} \hline
+Scheme & n=200 & n=400 & n=500 \\ \hhline{|=#=|=|=|}
+\texttt{comb2} & 2.492 & 17.980 & 33.516 \\ \hline
+\end{tabular}
+& & &
+\begin{tabular}{|l||l|l|l|} \hline
+Egison & n=50 & n=100 & n=200 \\ \hhline{|=#=|=|=|}
+\texttt{comb2} & 1.141 & 4.417 & 20.802 \\ \hline
+\end{tabular}
+\end{tabular}
+
+\medskip
+
+\begin{lstlisting}[language=egison]
+(match-all (iota n 1) (Multiset Something) ((cons x (cons y _)) `(,x ,y)))
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(match-all (between 1 n) (multiset something) [<cons $x <cons $y _>> [x y]])
+\end{lstlisting}
+
+\subsection{Tips for Improving Peformance}
+
+\begin{lstlisting}[language=egison]
+(define List
+  (lambda (M)
+    (lambda (p t)
+      (match p
+        (('nil) (if (eq? t '()) '{{}} '{}))
+        (('cons px py)
+         (match t
+                (() '{})
+                ((x . xs)
+                 `{{[,px ,M ,x] [,py ,(List M) ,xs]}})))
+        (('join '_ ('cons px py))
+         (map (lambda (xy) `[(,px ,M ,(car xy)) (,py ,(List M) ,(cdr xy))])
+               (tails t)))
+        (('join px py)
+         (map (lambda (xy) `[(,px ,(List M) ,(car xy)) (,py ,(List M) ,(cadr xy))])
+              (unjoin t)))
+        (('val x) (if (eq? x t) '{{}} '{}))
+        (pvar `{{[,pvar Something ,t]}})))))
+\end{lstlisting}
+
+\section{Future Work}\label{future}
+
 \subsection{Importation of More Expressive Pattern Constructs}
 
-Extending our macros for supporting loop patterns~\cite{egi2018loop} is also future work.
+Several advanced pattern constructs for non-free data types such as loop patterns~\cite{egi2018loop}, sequential patterns, and pattern functions~\cite{egisonPat} are still not implemented in the proposed Scheme macros.
+Implementation of these pattern constructs is future work.
 
 \subsection{Integration with Statically Typed Languages}
 
 Integration of Egison pattern matching with a programming language with a static type system remains as future work.
-Though, we have an experimental Template Haskell implementation~\cite{egisonHaskell}, this Haskell implementation currently has a problem that it does not allow users to define new pattern constructors.
+Though we have an experimental Template Haskell implementation~\cite{egisonHaskell}, this Haskell implementation currently has a problem that it does not allow users to define new pattern constructors.
 The Haskell program below shows the definition of \texttt{Pattern a}, which is a data type for patterns against data whose type is \texttt{a}.
 Haskell does not allow to add new data constructors to a data type defined in a different file.
 Therefore, users cannot add a new pattern constructor in their program.
@@ -758,9 +861,9 @@ This paper proposed a method for compiling Egison pattern-matching expressions t
 The proposed method made an implementation of the pattern-matching system of Egison very short; the macros and the pattern-matching procedure is implemented in less than 150 lines of Scheme code (\texttt{egison.scm} of~\cite{egisonScheme}).
 This implementation is also a good proof of extensibility of Scheme and Lisp.
 
-I believe that this pattern matching library will help education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
-I also believe that this pattern matching library will help research of pattern matching by providing a easy method for developing new pattern-matching extensions.
-I hope this work leads to the further development and  propagation of advanced pattern matching.
+This pattern matching library will help the research of pattern matching by providing an easy method for developing new pattern-matching extensions.
+This pattern matching library will also help the education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
+I hope this work leads to the further development and propagation of advanced pattern matching.
 
 %\begin{acks}
 %Yuichi Nishiwaki

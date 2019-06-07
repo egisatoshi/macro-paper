@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{27}
+\begin{thebibliography}{28}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -79,9 +79,19 @@
 \shownote{[Online; accessed 4-June-2019].}
 
 
-\bibitem[\protect\citeauthoryear{??}{egi}{2019}]%
+\bibitem[\protect\citeauthoryear{??}{egi}{2019a}]%
+        {egisonPat}
+ \bibinfo{year}{2019}\natexlab{a}.
+\newblock \bibinfo{title}{{Egison Manual - Basics of Patterns}}.
+\newblock
+\newblock
+\newblock
+\shownote{[Online; accessed 4-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{egi}{2019b}]%
         {egisonHaskell}
- \bibinfo{year}{2019}\natexlab{}.
+ \bibinfo{year}{2019}\natexlab{b}.
 \newblock \bibinfo{title}{{egison/egison-haskell: Template Haskell
   Implementation of Egison Pattern Matching}}.
 \newblock
