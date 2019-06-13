@@ -113,7 +113,7 @@
 
 \author{Satoshi Egi}
 \affiliation{%
-  \institution{Rakuten Institute of Technology, Rakuten Inc.}
+  \institution{Rakuten Institute of Technology, Rakuten, Inc.}
 }
 \affiliation{%
   \institution{University of Tokyo}
@@ -399,7 +399,7 @@ Pattern matching for non-free data types enables more intuitive definitions of e
 
 The \texttt{map} function is defined using pattern matching as follows.
 The \texttt{(join _ (cons x _))} pattern matches each element of a target list.
-We call this pattern \emph{join-cons pattern} because it often appears in list programming.
+In this paper, we call this pattern \emph{join-cons pattern} because it often appears in list programming.
 Combining a join-cons pattern with \texttt{match-all}, we can simply implement the \texttt{map} function.
 
 \begin{lstlisting}[language=egison]
@@ -632,7 +632,7 @@ When the target list is empty, this match clause returns a list that consists of
 Otherwise, this match clause returns an empty list.
 That means pattern matching fails.
 
-The second match clause (the 6th-9th lines) describes a pattern-matching algorithm for the \texttt{cons} pattern.
+The second match clause (the 7th-10th lines) describes a pattern-matching algorithm for the \texttt{cons} pattern.
 The pattern of this match clause is  ``\texttt{('cons px py)}''.
 The first and second argument of the \texttt{cons} pattern is assigned to \texttt{px} and \texttt{py} respectively.
 The body of this match clause is a bit complicated.
@@ -650,6 +650,8 @@ The fourth match clause (the 15th line) describes a pattern-matching algorithm f
 This match clause creates the next matching atom by just changing the matcher from ``\texttt{Multiset M}'' to \texttt{Something}.
 
 \subsection{Compiling \texttt{match-all} to Application of \texttt{map}}\label{method-map}
+
+\todo{add specific example of input and output}
 
 The \texttt{match-all} expression is transformed into an application of \texttt{map} whose first argument is a function whose argument is a return value of \texttt{extract-pattern-variables}, and second argument is the result of \texttt{gen-match-results}.
 The \texttt{extract-pattern-variables} function takes a pattern and returns a list of pattern variables that appear in the pattern.
@@ -712,95 +714,59 @@ The following program shows a match clause in \texttt{processMState} for handlin
 When the pattern of the top matching atom is a value pattern, it applies the intermediate pattern-matching result to the function in the value pattern and passes it to the matcher.
 This pattern is handled by the third match clause of the \texttt{Multiset} matcher in Sect.~\ref{method-matcher}, for example.
 
-\section{Performance}
+\section{Performance}\label{performance}
 %
-%\begin{lstlisting}[language=egison]
-%
-%\end{lstlisting}
-%
-%Efficient data structures are needed.
-%
-%table of benchmark results.
-%
-%Scheme macros
-%
-%Egison interpreter in Haskell
-%
-%lazy evaluation
+%%\begin{lstlisting}[language=egison]
+%%
+%%\end{lstlisting}
+%%
+%%Efficient data structures are needed.
+%%
+%%table of benchmark results.
+%%
+%%Scheme macros
+%%
+%%Egison interpreter in Haskell
+%%
+%%lazy evaluation
 
-\subsection{Benchmark Result}
+\subsection{Tips for Improving Performance}\label{tip}
 
-Scheme is faster than Egison.
+\todo{more discussion on strict evaluation}
 
-\begin{tabular}{llll}
-\begin{tabular}{|l||l|l|l|} \hline
-Scheme & n=1000 & n=2000 & n=4000 \\ \hhline{|=#=|=|=|}
-\texttt{unjoin} & 0.676 & 2.877 & 14.518 \\ \hline
-\end{tabular}
-& & &
-\begin{tabular}{|l||l|l|l|} \hline
-Egison & n=100 & n=200 & n=400 \\ \hhline{|=#=|=|=|}
-\texttt{unjoin} & 1.034 & 3.627 & 13.971 \\ \hline
-\end{tabular}
-\end{tabular}
+There are cases that the performance of pattern matching improves by adding proper match clauses to a matcher.
+We see such examples in this subsection.
 
-\medskip
+First, I improve the performance of the \texttt{Multiset} implementation in Sect.~\ref{method-matcher}.
+The \texttt{Multiset} matcher definition below has a new match clause in the 6th line.
+This match clause describes a pattern-matching algorithm for the \texttt{cons} pattern whose second argument is a wildcard.
+In this case, we do not need to calculate the rest collection.
+The cost for calculating the rest collection is so high that the performance dramatically improves by adding this new match clause.
 
 \begin{lstlisting}[language=egison]
-(match-all (iota n 1) (List Something) ((join xs ys) `(,xs ,ys)))
+(define Multiset
+  (lambda (M)
+    (lambda (p t)
+      (match p
+        (('nil) (if (eq? t '()) '{{}} '{}))
+        (('cons px '_) (map (lambda (x) `{[,px ,M ,x]}) t))
+        (('cons px py)
+         (map (lambda (xy) `{[,px ,M ,(car xy)] [,py ,(Multiset M) ,(cadr xy)]})
+              (match-all t (List M)
+                [(join hs (cons x ts)) `(,x ,(append hs ts))])))
+        (('val v)
+         (match-first `(,t ,v) `(,(List M) ,(Multiset M))
+           ('((nil) (nil)) '{{}})
+           ('((cons x xs) (cons ,x ,xs)) '{{}})
+           ('(_ _) '{})))
+        (pvar `{{[,pvar Something ,t]}})))))
 \end{lstlisting}
 
-\begin{lstlisting}[language=egison]
-(match-all (between 1 n) (list something) [<join $xs $ys> [xs ys]])
-\end{lstlisting}
-
-
-\begin{tabular}{llll}
-\begin{tabular}{|l||l|l|l|} \hline
-Scheme & n=500 & n=1000 & n=2000 \\ \hhline{|=#=|=|=|}
-\texttt{perm2} & 1.408 & 6.066 & 26.423 \\ \hline
-\end{tabular}
-& & &
-\begin{tabular}{|l||l|l|l|} \hline
-Egison & n=100 & n=200 & n=400 \\ \hhline{|=#=|=|=|}
-\texttt{perm2} & 2.107 & 11.347 & 81.84 \\ \hline
-\end{tabular}
-\end{tabular}
-
-\medskip
-
-\begin{lstlisting}[language=egison]
-(match-all (iota n 1) (List Something) ((join _ (cons x (join _ (cons y _)))) `(,x ,y)))
-\end{lstlisting}
-
-\begin{lstlisting}[language=egison]
-(match-all (between 1 n) (list something) [<join _ <cons $x <join _ <cons $y _>>>> [x y]])
-\end{lstlisting}
-
-
-\begin{tabular}{llll}
-\begin{tabular}{|l||l|l|l|} \hline
-Scheme & n=200 & n=400 & n=500 \\ \hhline{|=#=|=|=|}
-\texttt{comb2} & 2.492 & 17.980 & 33.516 \\ \hline
-\end{tabular}
-& & &
-\begin{tabular}{|l||l|l|l|} \hline
-Egison & n=50 & n=100 & n=200 \\ \hhline{|=#=|=|=|}
-\texttt{comb2} & 1.141 & 4.417 & 20.802 \\ \hline
-\end{tabular}
-\end{tabular}
-
-\medskip
-
-\begin{lstlisting}[language=egison]
-(match-all (iota n 1) (Multiset Something) ((cons x (cons y _)) `(,x ,y)))
-\end{lstlisting}
-
-\begin{lstlisting}[language=egison]
-(match-all (between 1 n) (multiset something) [<cons $x <cons $y _>> [x y]])
-\end{lstlisting}
-
-\subsection{Tips for Improving Peformance}
+Here is another example from the \texttt{List} matcher.
+The cost of pattern matching for the \texttt{join} pattern is high.
+However, the cost for enumerating only the tail parts is low; we can write the procedure for enumerating the tail parts using a tail recursion.
+When we use join patterns, the first argument of \texttt{join} is often a wildcard.
+Therefore, by adding a match clause for a join pattern whose first argument is a wildcard as follows, we can improve the efficiency of pattern matching for a list.
 
 \begin{lstlisting}[language=egison]
 (define List
@@ -813,15 +779,72 @@ Egison & n=50 & n=100 & n=200 \\ \hhline{|=#=|=|=|}
                 (() '{})
                 ((x . xs)
                  `{{[,px ,M ,x] [,py ,(List M) ,xs]}})))
-        (('join '_ ('cons px py))
-         (map (lambda (xy) `[(,px ,M ,(car xy)) (,py ,(List M) ,(cdr xy))])
+        (('join '_ py)
+         (map (lambda (y) `{[,py ,(List M) ,y]})
                (tails t)))
         (('join px py)
-         (map (lambda (xy) `[(,px ,(List M) ,(car xy)) (,py ,(List M) ,(cadr xy))])
+         (map (lambda (xy) `{[,px ,(List M) ,(car xy)] [,py ,(List M) ,(cadr xy)]})
               (unjoin t)))
         (('val x) (if (eq? x t) '{{}} '{}))
         (pvar `{{[,pvar Something ,t]}})))))
 \end{lstlisting}
+
+\subsection{Benchmark Result}
+
+I compared the performance of a nested cons pattern for a multiset.
+For benchmarking Egison and the proposed Scheme macros, I used the following expressions.
+
+\begin{lstlisting}[language=egison]
+(match-all (between 1 n) (multiset something) [<cons $x <cons $y _>> [x y]])
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(match-all (iota n 1) (Multiset Something) ((cons x (cons y _)) `(,x ,y)))
+\end{lstlisting}
+
+\noindent I also made a comparison with the functional description of the same program.
+
+\begin{lstlisting}[language=egison]
+(define fn-comb2
+  (lambda (xs)
+    (fn-comb2-helper xs '())))
+
+(define fn-comb2-helper
+  (lambda (xs hs)
+    (if (eq? xs '())
+        '()
+        (append (append (map (lambda (y) `(,(car xs) ,y)) hs)
+                        (map (lambda (y) `(,(car xs) ,y)) (cdr xs)))
+                (fn-comb2-helper (cdr xs) (append hs `(,(car xs))))))))
+
+(fn-comb2 (iota n 1))
+\end{lstlisting}
+
+\noindent Here is a benchmark result.
+I used Egison version 3.8.1, Gauche version 0.9.7, and MacBook Pro (2017) with 2.3 GHz Intel Core i5 processor for this benchmark.
+
+\medskip
+
+\begin{tabular}{|l||l|l|l|l|l|l|} \hline
+\texttt{comb2} & n=50 & n = 100 & n = 200 & n=400 & n=800 & n=1600 \\ \hhline{|=#=|=|=|=|=|=|}
+Egison with \texttt{multiset} in Sect.~\ref{method-matcher} & 1.189 & 4.470 & 21.441 & 112.67 & 697.66 & n/a \\ \hline
+Egison with \texttt{multiset} in Sect.~\ref{tip} & 0.438 & 1.312& 4.751 & 22.612 & 112.89 & 714.43 \\ \hline
+Scheme with \texttt{Multiset} in Sect.~\ref{method-matcher} & 0.124 & 0.436 & 2.413 & 17.900 & 117.41 & n/a \\ \hline
+Scheme with \texttt{Multiset} in Sect.~\ref{tip} & 0.074 & 0.099 & 0.259 & 0.752 & 3.159 & 12.641 \\ \hline
+Scheme (functional style) & 0.026 & 0.042 & 0.107 & 0.373 & 1.618 & 7.949 \\ \hline
+\end{tabular}
+
+\medskip
+
+\noindent For all the benchmark, Scheme is faster than Egison.
+The reason for these performance differences is that Gauche, a scheme implementation I used for the benchmark, has a compiler while Egison has only a simple interpreter implementation.
+
+Adding a matcher clause for an inductive pattern with wildcards is effective for both Egison and Scheme.
+This trick improves the performance of Egison and Scheme around $6$ times and $40$ times respectively for $n=800$.
+The performance improvement is larger for Scheme than Egison because Scheme is a strict language.
+Scheme always evaluates ``\texttt{(append hs ts)}'' in the 9th line of the \texttt{Multiset} definition in Sect.~\ref{method-matcher} whereas Egison evaluates the corresponding expression only when it is necessary.
+
+We can also observe that pattern-matching-oriented programming style is only two times slower than functional programming style in this case, though the program in pattern-matching-oriented programming style much simpler.
 
 \section{Future Work}\label{future}
 
@@ -866,8 +889,9 @@ This pattern matching library will also help the education of algorithms by maki
 I hope this work leads to the further development and propagation of advanced pattern matching.
 
 %\begin{acks}
-%Yuichi Nishiwaki
-%Mayuko Kori
+%  I thank Yuichi Nishiwaki for his advice ...
+%  I thank Yuito Murase for implementing Common Lisp macros.
+%  I thank Mayuko Kori for helping me for implementing Template Haskell implementation of the proposed Scheme macros.
 %\end{acks}
 
 % Bibliography

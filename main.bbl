@@ -326,8 +326,8 @@
 
 \bibitem[\protect\citeauthoryear{Wright and Duba}{Wright and Duba}{1993}]%
         {wright1993pattern}
-\bibfield{author}{\bibinfo{person}{A.K. Wright} {and} \bibinfo{person}{B.F.
-  Duba}.} \bibinfo{year}{1993}\natexlab{}.
+\bibfield{author}{\bibinfo{person}{Andrew~K. Wright} {and}
+  \bibinfo{person}{Bruce~F. Duba}.} \bibinfo{year}{1993}\natexlab{}.
 \newblock \showarticletitle{{Pattern matching for Scheme}}.
 \newblock \bibinfo{journal}{\emph{Unpublished manuscript}}
   (\bibinfo{year}{1993}).

@@ -1,0 +1,56 @@
+First, we compare the performance of a simple join pattern.
+We can see that there is a great performance difference.
+
+\begin{lstlisting}[language=egison]
+(match-all (iota n 1) (List Something) ((join xs ys) `(,xs ,ys)))
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(match-all (between 1 n) (list something) [<join $xs $ys> [xs ys]])
+\end{lstlisting}
+
+\begin{tabular}{llll}
+\begin{tabular}{|l||l|l|l|} \hline
+Scheme & n=1000 & n=2000 & n=4000 \\ \hhline{|=#=|=|=|}
+\texttt{unjoin} & 0.676 & 2.877 & 14.518 \\ \hline
+\end{tabular}
+& & &
+\begin{tabular}{|l||l|l|l|} \hline
+Egison & n=100 & n=200 & n=400 \\ \hhline{|=#=|=|=|}
+\texttt{unjoin} & 1.034 & 3.627 & 13.971 \\ \hline
+\end{tabular}
+\end{tabular}
+
+\medskip
+
+Second, we compare the performance of a nested join-cons pattern.
+
+\begin{lstlisting}[language=egison]
+(match-all (iota n 1) (List Something) ((join _ (cons x (join _ (cons y _)))) `(,x ,y)))
+\end{lstlisting}
+
+\begin{lstlisting}[language=egison]
+(match-all (between 1 n) (list something) [<join _ <cons $x <join _ <cons $y _>>>> [x y]])
+\end{lstlisting}
+
+\begin{tabular}{llll}
+\begin{tabular}{|l||l|l|l|} \hline
+Scheme & n=500 & n=1000 & n=2000 \\ \hhline{|=#=|=|=|}
+\texttt{perm2} & 1.408 & 6.066 & 26.423 \\ \hline
+\end{tabular}
+& & &
+\begin{tabular}{|l||l|l|l|} \hline
+Egison & n=100 & n=200 & n=400 \\ \hhline{|=#=|=|=|}
+\texttt{perm2} & 2.107 & 11.347 & 81.84 \\ \hline
+\end{tabular}
+\end{tabular}
+
+\medskip
+
+\medskip
+
+\medskip
+
+By comparing the second and third benchmark results, we can see that the performance of the proposed Scheme implementation for the second pattern-matching expression is better than that for the third pattern-matching expression though the meanings of both expressions are similar.
+I explain the reason in the next subsection.
+
