@@ -53,6 +53,7 @@
 \newblock \bibinfo{title}{{egison/egison-scheme: Scheme Macros for Egison
   Pattern Matching}}.
 \newblock
+  \bibinfo{howpublished}{\url{https://github.com/egison/egison-scheme}}.
 \newblock
 \newblock
 \shownote{[Online; accessed 21-Feb-2019].}
@@ -95,6 +96,7 @@
 \newblock \bibinfo{title}{{egison/egison-haskell: Template Haskell
   Implementation of Egison Pattern Matching}}.
 \newblock
+  \bibinfo{howpublished}{\url{https://github.com/egison/egison-haskell}}.
 \newblock
 \newblock
 \shownote{[Online; accessed 21-Feb-2019].}
@@ -267,7 +269,7 @@
         {thompson1986laws}
 \bibfield{author}{\bibinfo{person}{Simon Thompson}.}
   \bibinfo{year}{1986}\natexlab{}.
-\newblock \showarticletitle{Laws in miranda}. In
+\newblock \showarticletitle{{Laws in Miranda}}. In
   \bibinfo{booktitle}{\emph{Proceedings of the 1986 ACM conference on LISP and
   functional programming}}.
 \newblock
