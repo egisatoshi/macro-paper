@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{28}
+\begin{thebibliography}{29}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -102,12 +102,23 @@
 \shownote{[Online; accessed 21-Feb-2019].}
 
 
-\bibitem[\protect\citeauthoryear{??}{gau}{2019}]%
+\bibitem[\protect\citeauthoryear{??}{gau}{2019a}]%
         {gauchePM}
- \bibinfo{year}{2019}\natexlab{}.
+ \bibinfo{year}{2019}\natexlab{a}.
 \newblock \bibinfo{title}{{Gauche Users' Reference: Pattern matching}}.
 \newblock
   \bibinfo{howpublished}{\url{https://practical-scheme.net/gauche/man/gauche-refe/Pattern-matching.html}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 4-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{gau}{2019b}]%
+        {gaucheTM}
+ \bibinfo{year}{2019}\natexlab{b}.
+\newblock \bibinfo{title}{{Gauche Users' Reference: Traditional macros}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://practical-scheme.net/gauche/man/gauche-refe/Traditional-macros.html}}.
 \newblock
 \newblock
 \shownote{[Online; accessed 4-June-2019].}
