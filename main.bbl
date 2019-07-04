@@ -146,16 +146,6 @@
 \shownote{[Online; accessed 4-June-2019].}
 
 
-\bibitem[\protect\citeauthoryear{??}{rac}{2019}]%
-        {racketWeb}
- \bibinfo{year}{2019}\natexlab{}.
-\newblock \bibinfo{title}{{Racket}}.
-\newblock \bibinfo{howpublished}{\url{https://racket-lang.org/}}.
-\newblock
-\newblock
-\shownote{[Online; accessed 4-June-2019].}
-
-
 \bibitem[\protect\citeauthoryear{Bewig}{Bewig}{2007}]%
         {bewig2007scheme}
 \bibfield{author}{\bibinfo{person}{Philip~L Bewig}.}
@@ -217,6 +207,18 @@
 \newblock \bibinfo{journal}{\emph{Implementation of Functional Languages}}
   (\bibinfo{year}{1996}).
 \newblock
+
+
+\bibitem[\protect\citeauthoryear{Flatt and PLT}{Flatt and PLT}{2010}]%
+        {plt-tr1}
+\bibfield{author}{\bibinfo{person}{Matthew Flatt} {and} \bibinfo{person}{PLT}.}
+  \bibinfo{year}{2010}\natexlab{}.
+\newblock \bibinfo{booktitle}{\emph{Reference: Racket}}.
+\newblock \bibinfo{type}{{T}echnical {R}eport} PLT-TR-2010-1.
+  \bibinfo{institution}{PLT Design Inc.}
+\newblock
+\newblock
+\shownote{\url{https://racket-lang.org/tr1/}.}
 
 
 \bibitem[\protect\citeauthoryear{Harrison}{Harrison}{2009}]%
