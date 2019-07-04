@@ -10,6 +10,7 @@
 %\setcitestyle{square}
 
 \newcommand{\todo}[1]{\textcolor{red}{(TODO: #1)}}
+\newcommand{\new}[1]{\textcolor{blue}{#1}}
 
 \usepackage{multicol}
 
@@ -217,13 +218,16 @@ Active patterns support non-linear patterns though they do not support pattern m
 First class patterns support pattern matching with backtracking though they do not support pattern matching with multiple results.
 
 Egison~\cite{egisonWeb} is a programming language with a pattern matching system that is extensible and supports both of non-linear patterns and multiple results~\cite{egi2018aplas}.
+\new{
 The expressions below match a list ``\texttt{\{1 2 3\}}'' as a list of integers ``\texttt{(list integer)}'' using the pattern ``\texttt{<cons \$x \$ts>}''.
+}
 
 \begin{lstlisting}[language=egison]
 (match-all {1 2 3} (list integer) [<cons $x $ts> [x ts]]) ; {[1 {2 3}]}
 \end{lstlisting}
 
 \noindent
+\new{
 The \texttt{match-all} expression used in the above program returns a list of the results evaluating the body expression for all the pattern-matching results.
 The \texttt{cons} pattern decomposes a list into the head element and the rest.
 Therefore, in this case, the evaluation result of this \texttt{match-all} contains just a single element.
@@ -237,18 +241,23 @@ The pattern-matching expression of Egison takes a \emph{matcher} in addition to 
 A matcher specifies the method to interpret the pattern.
 The matcher ``\texttt{(list integer)}'' specifies that we do pattern matching the target with the given pattern as a list of integers.
 Users can define their own matchers in Egison.
+}
 
+\new{
 If we change the matcher of the above \texttt{match-all} from \texttt{(list integer)} to \texttt{(multiset integer)}, the evaluation result also changes.
 The \texttt{cons} pattern of a multiset is defined to divide a target list into an arbitrary element and the rest.
 As a result, there are three decompositions as follows.
+}
 
 \begin{lstlisting}[language=egison]
 (match-all {1 2 3} (multiset integer) [<cons $x $ts> [x ts]])
 ; {[1 {2 3}] [2 {1 3}] [3 {1 2}]}
 \end{lstlisting}
 
+\new{
 In addition to \texttt{cons}, the \texttt{join} pattern can be used for the \texttt{list} matcher.
 The \texttt{join} pattern divides a target list into two lists, a head part and tail part.
+}
 
 \begin{lstlisting}[language=egison]
 (match-all {1 2 3} (list integer) [<join $hs $ts> [hs ts]])
@@ -261,10 +270,12 @@ As a result, this expression returns an empty list.
 In Egison, a value pattern that checks equality of data begins with ``\texttt{,}''.
 After ``\texttt{,}'',  we can write an arbitrary expression.
 The time complexity of this pattern matching is $O(n^2)$ because Egison uses backtracking for traversing a search tree.
+\new{
 The Curry functional logic programming language also supports non-linear pattern matching with multiple results.
 However, Curry transforms a non-linear pattern to pattern guards\todo{cite}.
 Therefore, the time complexity for the same pattern matching is $O(n^3)$ in Curry.
 Backtracking is important feature for handling non-linear patterns.
+}
 
 \begin{lstlisting}[language=egison]
 (match-all (take n (repeat 0)) (multiset integer) [<cons $x <cons ,(+ x 1) <cons ,(+ x 2) _>>> x])
@@ -272,15 +283,19 @@ Backtracking is important feature for handling non-linear patterns.
 \end{lstlisting}
 
 \noindent
+\new{
 Of course, if we use a more efficient data structure for lists, we can find a sequential triple more efficiently.
 For example, if we assume that the target list is sorted, the time complexity for finding a sequential triple is $O(n)$.
 In fact, we can also define such a pattern-matching algorithm by defining a matcher for sorted-lists.
 Egison allows users to define their own matchers.
+}
 
 The program below defines a pattern-matching algorithm for a multiset.
 The \texttt{matcher} expression used in the following program is a built-in syntax of Egison for defining pattern-matching algorithms for each data type.
+\new{
 The definition of \texttt{multiset} in Scheme will be explained in Sect.~\ref{method-matcher}.
 I will skip the explanation of the following program for now.
+}
 
 \begin{lstlisting}[language=egison]
 (define $multiset
@@ -336,11 +351,13 @@ This section introduces the usage of the pattern-matching expressions provided b
 
 \subsection{Syntax Design}\label{syntax}
 
+\new{
 Here is the formal grammar of the pattern-matching expressions of the proposed Scheme macros.
 $M$ denotes an expression.
 $p$ denotes a pattern.
 $x$ denotes a symbol.
 $C$ denotes a pattern constructor.
+}
 
 \begin{multicols}{2}
 \noindent
@@ -359,12 +376,14 @@ p &::= \texttt{_} \mid \texttt{$x$} \mid \texttt{,$M$} \mid \texttt{($C$ $p$ $\c
 
 \todo{segmentation variables and loop patterns}
 
+\new{
 We use three kinds of parenthesis.
 \texttt{[]} is used to build a tuple.
 \texttt{\{\}} is used to build a list.
 \texttt{()} is used to build a syntax tree or apply a function and a pattern constructor.
 Though we use \texttt{<>} for applying a pattern constructor in Egison, we use \texttt{()} for that in Scheme because we cannot use \texttt{<>} as parenthesis in Scheme.
 \todo{refer to R6RS and R7RS for the specification of parenthesis.}
+}
 
 The \texttt{match-all} expression has the completely same meaning as that of Egison.
 The \texttt{match-first} has similar to the traditional \texttt{match} expression; it evaluates the body of the first match clause whose pattern matches with the target.
@@ -449,11 +468,13 @@ The pattern inside a later pattern is pattern-matched after pattern matching for
 
 \subsection{Pattern-Matching-Oriented Programming}\label{apps}
 
+\new{
 The expressive power of Egison pattern matching is so expressive that a new programming style called \emph{pattern-matching-oriented programming style} arises.
 This programming style makes descriptions of mathematical algorithms concise by confining explicit recursions for traversing data inside intuitive patterns.\todo{fix}
 This section shows several sample programs in this programming style.
 I am currently preparing another paper for discussing pattern-matching-oriented programming techniques.
 We can execute programs shown in this section by loading a program in \cite{egisonScheme} on Gauche~\cite{gaucheWeb}.
+}
 
 \subsubsection{Implementation of a SAT Solver}
 
@@ -462,10 +483,12 @@ We can see a full implementation of this SAT solver in \texttt{dp.scm} in the Gi
 Pattern matching for multisets dramatically improves the readability of the description of this algorithm.
 We can compare this Scheme program with the OCaml implementation of the same algorithm in~\cite{harrison2009handbook}.
 
+\new{
 The \texttt{sat} function takes two argument \texttt{vars}, a list of propositional variable, and \texttt{cnf}, a propositional logic formula in conjunctive normal form.
 The tuple consists of \texttt{vars} and \texttt{cnf} is pattern-matched as a tuple of a multiset of integers and a multiset of multisets of integers in the definition of \texttt{sat}.
 In this program, a propositional variable is represented as a positive integer, and a literal is represented as a integer.
 For example, $-1$ represents negation of the propositional variable $1$.
+}
 
 \begin{lstlisting}[language=egison]
 (define sat
@@ -491,6 +514,7 @@ For example, $-1$ represents negation of the propositional variable $1$.
 \end{lstlisting}
 
 \noindent
+\new{
 The first match clause (line 5) matches if \texttt{cnf} is empty.
 This match clause returns \texttt{\#t} because \texttt{cnf} is satisfiable in this case.
 The second match clause (line 7) matches if \texttt{cnf} contains an empty clause.
@@ -503,10 +527,12 @@ The fifth match clause (lines 15 and 16) matches when there is a propositional v
 In this match clause, we assign \texttt{v} false at once.
 The final match clause (lines 18-20) matches when pattern matching for all the above match clauses fails.
 This match clause applies the resolution principle.
+}
 
 \subsubsection{Redefinitions of Basic List Processing Functions}
 
-\noindent By combining a not-pattern, we can define a \texttt{unique} function.
+\todo{more detail explanation}
+By combining a not-pattern, we can define a \texttt{unique} function.
 A not-pattern is used to describe that there is no more \texttt{x} after an occurrence of \texttt{x}.
 Therefore, this pattern extracts only the last appearance of each element.
 
@@ -617,7 +643,9 @@ In \texttt{processMStates} of \texttt{stream-egison.scm}, the traversal of an in
 Appendix~\ref{pm-inf} demonstrates pattern matching that uses the macros provided by \texttt{stream-egison.scm}.
 
 \todo{Implementation of \texttt{match-first}}
+\new{
 This distinct implementation of \texttt{processMStates} is not necessary for the Egison language that adopt a lazy evaluation strategy.
+}
 
 \begin{lstlisting}[language=egison]
 (define processMStates1
@@ -634,7 +662,7 @@ This distinct implementation of \texttt{processMStates} is not necessary for the
 \section{Implementation Method}\label{method}
 
 This section introduces a method for implementing the \texttt{match-all} macro in Scheme.
-Three tricks, which are explained in Sect.~\ref{method-matcher}, Sect.~\ref{method-map}, and Sect.~\ref{method-val-pat} enable this implementation.
+The three tricks that are explained in Sect.~\ref{method-matcher}, Sect.~\ref{method-map}, and Sect.~\ref{method-val-pat} enable this implementation.
 
 \subsection{Compiling Matchers to \texttt{lambda}s}\label{method-matcher}
 
@@ -680,10 +708,12 @@ The pattern of this match clause is  ``\texttt{('cons px py)}''.
 The first and second argument of the \texttt{cons} pattern is assigned to \texttt{px} and \texttt{py} respectively.
 The body of this match clause is a bit complicated.
 The evaluation result of this body expression depends on the target list.
+\new{
 Now, we consider a case where the target list is ``\texttt{(1 2 3)}''.
 In this case, this body expression is evaluated to ``\texttt{\{\{[px M 1] [py (Multiset M) (2 3)]\} \{[px M 2] [py (Multiset M) (1 3)]\} \{[px M 3] [py (Multiset M) (1 2)]\}\}}''.
 Each list of the next matching atoms is pushed to the current matching state; as a result, three new matching states are generated.
 For the first matching state, \texttt{1} and \texttt{(2 3)} are pattern-matched using the ``\texttt{M}'' and ``\texttt{Multiset M}'' matcher with the patterns \texttt{px} and \texttt{py}, respectively, in the succeeding pattern-matching process.
+}
 
 The third match clause (lines 10-14) describes a pattern-matching algorithm for a value pattern.
 The body of this match clause compares the target and the value inside the value pattern.
@@ -701,7 +731,9 @@ For example, ``\texttt{(extract-pattern-variables '(join hs (cons x ts)))}'' ret
 The \texttt{gen-match-results} function takes a pattern, a target, and a matcher, and returns a list of pattern-matching results.
 These pattern-matching results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
 The order of the values in the \texttt{gen-match-results} must correspond with the order of pattern variables returned by \texttt{extract-pattern-variables}.
+\new{
 For example, ``\texttt{(gen-match-results (cons x xs) (Multiset Something) (1 2 3))}'' returns ``\texttt{((1 (2 3)) (2 (1 3)) (3 (1 2)))}''.
+}
 
 \begin{lstlisting}[language=egison]
 (match-all t M [p e])
@@ -719,10 +751,12 @@ For example, ``\texttt{(gen-match-results (cons x xs) (Multiset Something) (1 2 
 \end{lstlisting}
 
 \noindent
+\new{
 \texttt{define-macro} in the above program is a traditional non-hygienic macro similar to \texttt{defmacro} of Common Lisp~\cite{gaucheTM}.
-The \texttt{match-all} macro requires to call the complex Scheme functions such as \texttt{extract-pattern-variables} for expanding the macro.
+The \texttt{match-all} macro requires to call the complex Scheme procedures such as \texttt{extract-pattern-variables} for expanding the macro.
 Therefore, defining the macro just by using \texttt{syntax-rules}, which is ...\todo{find a good verb} in R7RS\todo{cite} is difficult.
 By using \texttt{syntax-case} and \texttt{syntax->datum} in R6RS, we can define the above macro relatively easily.
+}
 
 \noindent The program below defines \texttt{gen-match-results}.
 \texttt{gen-match-results} is a macro that just calls the \texttt{processMStates} function introduced in Sect.~\ref{algorithm}.
@@ -743,7 +777,9 @@ Thus, by separating the extraction of pattern variables and the calculation of p
 
 This section explains a method for compiling value patterns.
 A value pattern is transformed into a \texttt{lambda} expression whose arguments are pattern variables that appear in the left side of the value pattern.
+\new{
 For example, ``\texttt{(cons x (cons y (cons ,x (cons z _))))}'' is transformed into ``\texttt{(cons x (cons y (cons (val ,(lambda (x y) x)) (cons z _))))}''.
+}
 The \texttt{rewrite-pattern} function called inside the macro does this transformation.
 
 This transformed value pattern is handled in \texttt{processMState}.
@@ -765,9 +801,11 @@ This pattern is handled by the third match clause of the \texttt{Multiset} match
 
 \section{Performance}\label{performance}
 
+\new{
 The section discusses the performance of the proposed Scheme macros.
 Sect.~\ref{tip} presents an idea for improving the performance of Egison pattern matching that was implemented for the first time in the proposed Scheme macros.
 Sect.~\ref{benchmark-result} shows the benchmark results of Egison and the proposed Scheme macros and analyzes these benchmark results.
+}
 
 \subsection{Tips for Improving Performance}\label{tip}
 
@@ -839,7 +877,10 @@ For benchmarking Egison and the proposed Scheme macros, I used the following exp
 (match-all (iota n 1) (Multiset Something) ((cons x (cons y _)) `(,x ,y)))
 \end{lstlisting}
 
-\noindent I also made a comparison with the functional description of the same program.
+\noindent
+\new{
+I also made a comparison with the functional description of the same program.
+}
 
 \begin{lstlisting}[language=egison]
 (define comb2 (lambda (xs) (comb2-helper xs '())))
@@ -879,7 +920,9 @@ This trick improves the performance of Egison and Scheme around $6$ times and $4
 The performance improvement is larger for Scheme than Egison because Scheme is a strict language.
 Scheme always evaluates ``\texttt{(append hs ts)}'' in the 9th line of the \texttt{Multiset} definition in Sect.~\ref{method-matcher} whereas Egison evaluates the corresponding expression only when it is necessary.
 
+\new{
 We can also observe that pattern-matching-oriented programming style is only two times slower than functional programming style in this case, though the program in pattern-matching-oriented programming style much simpler.
+}
 
 \section{Future Work}\label{future}
 
