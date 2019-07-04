@@ -546,8 +546,8 @@ This match clause applies the resolution principle.
 \subsubsection{Redefinitions of Basic List Processing Functions}
 
 \todo{more detail explanation}
-By combining a not-pattern, we can define a \texttt{unique} function.
-A not-pattern is used to describe that there is no more \texttt{x} after an occurrence of \texttt{x}.
+By combining a not-pattern, we can define a \lstinline{unique} function.
+A not-pattern is used to describe that there is no more \lstinline{x} after an occurrence of \lstinline{x}.
 Therefore, this pattern extracts only the last appearance of each element.
 \todo{\lstinline{Eq} matcher}
 
@@ -561,7 +561,7 @@ Therefore, this pattern extracts only the last appearance of each element.
 ; (1 3 2 4)
 \end{lstlisting}
 
-\noindent We can define \texttt{unique} whose results consist of the first appearance of each element by using a later pattern.
+\noindent We can define \lstinline{unique} whose results consist of the first appearance of each element by using a later pattern.
 
 {\footnotesize
 \begin{lstlisting}[language=egison]
@@ -598,15 +598,15 @@ Sect. 5.1 of~\cite{egi2018aplas} shows a sample of this reduction.
 
 \medskip
 
-The \texttt{processMState} function below implements this process.
-\texttt{processMState} takes a matching state as its argument and returns a list of next matching states.
+The \lstinline{processMState} function below implements this process.
+\lstinline{processMState} takes a matching state as its argument and returns a list of next matching states.
 In the program below, several matching clauses are omitted for simplification.
-``\texttt{...}'' in the 4th line represents this omission.
+``\lstinline{...}'' in the 4th line represents this omission.
 
-The match clause in the 5th and 6th lines describes the case where the matcher of the top matching atom is \texttt{Something}.
-In this case, the value of the target \texttt{t} is added to the intermediate pattern-matching result.
-\texttt{Something} is the only built-in matcher of the Egison pattern-matching system.
-\texttt{Something} can handle only wildcards or pattern variables, and is an only matcher that can bind a value to a pattern variable.
+The match clause in the 5th and 6th lines describes the case where the matcher of the top matching atom is \lstinline{Something}.
+In this case, the value of the target \lstinline{t} is added to the intermediate pattern-matching result.
+\lstinline{Something} is the only built-in matcher of the Egison pattern-matching system.
+\lstinline{Something} can handle only wildcards or pattern variables, and is an only matcher that can bind a value to a pattern variable.
 The reason why an intermediate result is a list of values and not a list of pairs of a symbol and value is explained in Sect.~\ref{method-map}.
 
 The match clause in the 7th-9th lines describes the general case.
@@ -615,7 +615,7 @@ In this Scheme implementation, a matcher is a function that takes a pattern and 
 
 In the program below, the matching clauses for and-patterns, or-patterns, not-patterns, and later patterns introduced in Sect.~\ref{usage} are omitted.
 We can implement these pattern constructs by adding match clauses for them.
-We can see the full implementation of \texttt{processMState} in \texttt{egison.scm} in the GitHub repository of the proposed macros~\cite{egisonScheme}.
+We can see the full implementation of \lstinline{processMState} in \texttt{egison.scm} in the GitHub repository of the proposed macros~\cite{egisonScheme}.
 
 \begin{lstlisting}[language=egison]
 (define processMState
@@ -631,16 +631,16 @@ We can see the full implementation of \texttt{processMState} in \texttt{egison.s
 
 \medskip
 
-The \texttt{processMStates} below implements the whole pattern-matching process while the above \texttt{processMState} implements a step of this pattern-matching process.
-\texttt{processMStates} takes a list of matching states as its argument and returns all pattern-matching results.
+The \lstinline{processMStates} below implements the whole pattern-matching process while the above \lstinline{processMState} implements a step of this pattern-matching process.
+\lstinline{processMStates} takes a list of matching states as its argument and returns all pattern-matching results.
 The first match clause (line 4) describes the case where a list of matching states is empty.
-In this case, \texttt{processMStates} returns an empty list and terminates the pattern-matching procedure.
+In this case, \lstinline{processMStates} returns an empty list and terminates the pattern-matching procedure.
 The second match clause (lines 5 and 6) describes the case where the stack of the first matching state is empty.
-In this case, the intermediate pattern-matching result of this matching state is added to the return value of \texttt{processMStates} as a final result of pattern matching.
-\texttt{processMStates} is recursively called for the rest matching states.
+In this case, the intermediate pattern-matching result of this matching state is added to the return value of \lstinline{processMStates} as a final result of pattern matching.
+\lstinline{processMStates} is recursively called for the rest matching states.
 The third match clause (lines 7 and 8) describes the general case.
-In this case, \texttt{processMState} is called for the first matching state.
-\texttt{processMStates} is recursively called for the result of appending the result of this \texttt{processMState} and the rest matching states.
+In this case, \lstinline{processMState} is called for the first matching state.
+\lstinline{processMStates} is recursively called for the result of appending the result of this \lstinline{processMState} and the rest matching states.
 
 \begin{lstlisting}[language=egison]
 (define processMStates
@@ -654,12 +654,12 @@ In this case, \texttt{processMState} is called for the first matching state.
 \end{lstlisting}
 
 The above implementation is from \texttt{egison.scm}~\cite{egisonScheme} that does not support pattern matching with infinitely many results.
-In \texttt{processMStates} of \texttt{stream-egison.scm}~\cite{egisonScheme}, the traversal of an infinitely large search tree is implemented that is explained in Sect.~5.2 of the original Egison paper~\cite{egi2018aplas}.
+In \lstinline{processMStates} of \texttt{stream-egison.scm}~\cite{egisonScheme}, the traversal of an infinitely large search tree is implemented that is explained in Sect.~5.2 of the original Egison paper~\cite{egi2018aplas}.
 Appendix~\ref{pm-inf} demonstrates pattern matching that uses the macros provided by \texttt{stream-egison.scm}.
 
-\todo{Implementation of \texttt{match-first}}
+\todo{Implementation of \lstinline{match-first}}
 \new{
-This distinct implementation of \texttt{processMStates} is not necessary for the Egison language that adopt a lazy evaluation strategy.
+This distinct implementation of \lstinline{processMStates} is not necessary for the Egison language that adopt a lazy evaluation strategy.
 }
 
 \begin{lstlisting}[language=egison]
@@ -675,14 +675,14 @@ This distinct implementation of \texttt{processMStates} is not necessary for the
 
 \section{Implementation Method}\label{method}
 
-This section introduces a method for implementing the \texttt{match-all} macro in Scheme.
+This section introduces a method for implementing the \lstinline{match-all} macro in Scheme.
 The three tricks that are explained in Sect.~\ref{method-matcher}, Sect.~\ref{method-map}, and Sect.~\ref{method-val-pat} enable this implementation.
 
-\subsection{Compiling Matchers to \texttt{lambda}s}\label{method-matcher}
+\subsection{Compiling Matchers to \lstinline{lambda}s}\label{method-matcher}
 
 In the Egison pattern matching system~\cite{egi2018aplas}, a matcher is a special object that retains a pattern-matching algorithm.
 In the proposed Scheme macros, for encoding a matcher with lambda to avoid introducing new built-in objects, a matcher is defined as a function that takes a pattern and a target, and returns a list of lists of next matching atoms.
-For example, the \texttt{Multiset} matcher is defined as follows.
+For example, the \lstinline{Multiset} matcher is defined as follows.
 
 \begin{lstlisting}[language=egison]
 (define Multiset
@@ -702,51 +702,51 @@ For example, the \texttt{Multiset} matcher is defined as follows.
         [pvar `{{[,pvar Something ,t]}}]))))
 \end{lstlisting}
 
-In the above program, we uses ``\texttt{\{\}}'' and ``\texttt{[]}'' separately to enhance the readability of the program.
+In the above program, we uses ``\texttt{\{\}}'' and ``\lstinline{[]}'' separately to enhance the readability of the program.
 We use braces ``\texttt{\{\}}'' for enclosing a list.
 For example, a list of matching atoms is enclosed with braces.
-We use brackets ``\texttt{[]}'' for enclosing a tuple.
+We use brackets ``\lstinline{[]}'' for enclosing a tuple.
 For example, a matching atom, which is a triple of a pattern, a matcher, and a target, is enclosed with brackets.
 
 As a matcher definition of Egison~\cite{egi2018aplas}, a matcher definition consists of match clauses for pattern matching against a pattern.
 Each match clause describes a pattern-matching algorithm against the matched pattern.
-For pattern matching against patterns, the traditional Wright's \texttt{match} expression~\cite{wright1993pattern} is used.
+For pattern matching against patterns, the traditional Wright's \lstinline{match} expression~\cite{wright1993pattern} is used.
 
-The first match clause (line 5) describes the pattern-matching algorithm for the \texttt{nil} pattern that matches with an empty list.
+The first match clause (line 5) describes the pattern-matching algorithm for the \lstinline{nil} pattern that matches with an empty list.
 When the target list is empty, this match clause returns a list that consists of an empty list of matching atoms.
 Otherwise, this match clause returns an empty list.
 That means pattern matching fails.
 
-The second match clause (lines 6-9) describes a pattern-matching algorithm for the \texttt{cons} pattern.
-The pattern of this match clause is  ``\texttt{('cons px py)}''.
-The first and second argument of the \texttt{cons} pattern is assigned to \texttt{px} and \texttt{py} respectively.
+The second match clause (lines 6-9) describes a pattern-matching algorithm for the \lstinline{cons} pattern.
+The pattern of this match clause is  ``\lstinline{('cons px py)}''.
+The first and second argument of the \lstinline{cons} pattern is assigned to \lstinline{px} and \lstinline{py} respectively.
 The body of this match clause is a bit complicated.
 The evaluation result of this body expression depends on the target list.
 \new{
-Now, we consider a case where the target list is ``\texttt{(1 2 3)}''.
+Now, we consider a case where the target list is ``\lstinline{(1 2 3)}''.
 In this case, this body expression is evaluated to ``\texttt{\{\{[px M 1] [py (Multiset M) (2 3)]\} \{[px M 2] [py (Multiset M) (1 3)]\} \{[px M 3] [py (Multiset M) (1 2)]\}\}}''.
 Each list of the next matching atoms is pushed to the current matching state; as a result, three new matching states are generated.
-For the first matching state, \texttt{1} and \texttt{(2 3)} are pattern-matched using the ``\texttt{M}'' and ``\texttt{Multiset M}'' matcher with the patterns \texttt{px} and \texttt{py}, respectively, in the succeeding pattern-matching process.
+For the first matching state, \lstinline{1} and \lstinline{(2 3)} are pattern-matched using the ``\lstinline{M}'' and ``\lstinline{Multiset M}'' matcher with the patterns \lstinline{px} and \lstinline{py}, respectively, in the succeeding pattern-matching process.
 }
 
 The third match clause (lines 10-14) describes a pattern-matching algorithm for a value pattern.
 The body of this match clause compares the target and the value inside the value pattern.
-The \texttt{match-first} expression that recursively calls the \texttt{Multiset} matcher is used for this comparison.
+The \lstinline{match-first} expression that recursively calls the \lstinline{Multiset} matcher is used for this comparison.
 
 The fourth match clause (line 15) describes a pattern-matching algorithm for a pattern variable and wildcard.
-This match clause creates the next matching atom by just changing the matcher from ``\texttt{Multiset M}'' to \texttt{Something}.
+This match clause creates the next matching atom by just changing the matcher from ``\lstinline{(Multiset M)}'' to \lstinline{Something}.
 
-\subsection{Compiling \texttt{match-all} to Application of \texttt{map}}\label{method-map}
+\subsection{Compiling \lstinline{match-all} to Application of \lstinline{map}}\label{method-map}
 
-The \texttt{match-all} expression is transformed into an application of \texttt{map} whose first argument is a function whose argument is a return value of \texttt{extract-pattern-variables}, and second argument is the result of \texttt{gen-match-results}.
-The \texttt{extract-pattern-variables} function takes a pattern and returns a list of pattern variables that appear in the pattern.
+The \lstinline{match-all} expression is transformed into an application of \lstinline{map} whose first argument is a function whose argument is a return value of \lstinline{extract-pattern-variables}, and second argument is the result of \lstinline{gen-match-results}.
+The \lstinline{extract-pattern-variables} function takes a pattern and returns a list of pattern variables that appear in the pattern.
 The order of the pattern variables corresponds with the order they appeared in the pattern.
-For example, ``\texttt{(extract-pattern-variables '(join hs (cons x ts)))}'' returns ``\texttt{(hs x ts)}''.
-The \texttt{gen-match-results} function takes a pattern, a target, and a matcher, and returns a list of pattern-matching results.
-These pattern-matching results consist of values that are going to bound to the pattern variables returned by \texttt{extract-pattern-variables}.
-The order of the values in the \texttt{gen-match-results} must correspond with the order of pattern variables returned by \texttt{extract-pattern-variables}.
+For example, ``\lstinline{(extract-pattern-variables '(join hs (cons x ts)))}'' returns ``\lstinline{(hs x ts)}''.
+The \lstinline{gen-match-results} function takes a pattern, a target, and a matcher, and returns a list of pattern-matching results.
+These pattern-matching results consist of values that are going to bound to the pattern variables returned by \lstinline{extract-pattern-variables}.
+The order of the values in the \lstinline{gen-match-results} must correspond with the order of pattern variables returned by \lstinline{extract-pattern-variables}.
 \new{
-For example, ``\texttt{(gen-match-results (cons x xs) (Multiset Something) (1 2 3))}'' returns ``\texttt{((1 (2 3)) (2 (1 3)) (3 (1 2)))}''.
+For example, ``\lstinline{(gen-match-results (cons x xs) (Multiset Something) (1 2 3))}'' returns ``\lstinline{((1 (2 3)) (2 (1 3)) (3 (1 2)))}''.
 }
 
 \begin{lstlisting}[language=egison]
@@ -766,15 +766,15 @@ For example, ``\texttt{(gen-match-results (cons x xs) (Multiset Something) (1 2 
 
 \noindent
 \new{
-\texttt{define-macro} in the above program is a traditional non-hygienic macro similar to \texttt{defmacro} of Common Lisp~\cite{gaucheTM}.
-The \texttt{match-all} macro requires to call the complex Scheme procedures such as \texttt{extract-pattern-variables} for expanding the macro.
-Therefore, defining the macro just by using \texttt{syntax-rules}, which is supported in R7RS~\cite{shinn2013revised} is difficult.
-By using \texttt{syntax-case} and \texttt{syntax->datum} in R6RS~\cite{sperber2009revised}, we can define the above macro relatively easily.
+\lstinline{define-macro} in the above program is a traditional non-hygienic macro similar to \lstinline{defmacro} of Common Lisp~\cite{gaucheTM}.
+The \lstinline{match-all} macro requires to call the complex Scheme procedures such as \lstinline{extract-pattern-variables} for expanding the macro.
+Therefore, defining the macro just by using \lstinline{syntax-rules}, which is supported in R7RS~\cite{shinn2013revised} is difficult.
+By using \lstinline{syntax-case} and \lstinline{syntax->datum} in R6RS~\cite{sperber2009revised}, we can define the above macro relatively easily.
 }
 
-The program below defines \texttt{gen-match-results}.
-\texttt{gen-match-results} is a macro that calls the \texttt{processMStates} function introduced in Sect.~\ref{algorithm}.
-An initial matching state ``\lstinline|(MState {[p M t]} {})|'' is created from ``\texttt{p}'', ``\texttt{M}'', and ``\texttt{t}''.
+The program below defines \lstinline{gen-match-results}.
+\lstinline{gen-match-results} is a macro that calls the \lstinline{processMStates} function introduced in Sect.~\ref{algorithm}.
+An initial matching state ``\lstinline|(MState {[p M t]} {})|'' is created from ``\lstinline{p}'', ``\lstinline{M}'', and ``\lstinline{t}''.
 
 \begin{lstlisting}[language=egison]
 (define-macro (gen-match-results p M t)
@@ -787,17 +787,17 @@ Thus, by separating the extraction of pattern variables and the calculation of p
 
 %However, this separation disable to apply the existing method for compiling pattern matching efficiently.
 
-\subsection{Compiling Value Patterns to \texttt{lambda}s}\label{method-val-pat}
+\subsection{Compiling Value Patterns to \lstinline{lambda}s}\label{method-val-pat}
 
 This section explains a method for compiling value patterns.
-A value pattern is transformed into a \texttt{lambda} expression whose arguments are pattern variables that appear in the left side of the value pattern.
+A value pattern is transformed into a \lstinline{lambda} expression whose arguments are pattern variables that appear in the left side of the value pattern.
 \new{
-For example, ``\texttt{(cons x (cons y (cons ,x (cons z _))))}'' is transformed into ``\texttt{(cons x (cons y (cons (val ,(lambda (x y) x)) (cons z _))))}''.
+For example, ``\lstinline{(cons x (cons y (cons ,x (cons z _))))}'' is transformed into ``\lstinline{(cons x (cons y (cons (val ,(lambda (x y) x)) (cons z _))))}''.
 }
-The \texttt{rewrite-pattern} function called inside the macro does this transformation.
+The \lstinline{rewrite-pattern} function called inside the macro does this transformation.
 
-This transformed value pattern is handled in \texttt{processMState}.
-The following program shows a match clause in \texttt{processMState} for handling a value pattern, which is omitted in the explanation of \texttt{processMState} in Sect.~\ref{algorithm}.
+This transformed value pattern is handled in \lstinline{processMState}.
+The following program shows a match clause in \lstinline{processMState} for handling a value pattern, which is omitted in the explanation of \lstinline{processMState} in Sect.~\ref{algorithm}.
 
 \begin{lstlisting}[language=egison]
 (define processMState
@@ -811,7 +811,7 @@ The following program shows a match clause in \texttt{processMState} for handlin
 
 \noindent
 When the pattern of the top matching atom is a value pattern, it applies the intermediate pattern-matching result to the function in the value pattern and passes it to the matcher.
-This pattern is handled by the third match clause of the \texttt{Multiset} matcher in Sect.~\ref{method-matcher}, for example.
+This pattern is handled by the third match clause of the \lstinline{Multiset} matcher in Sect.~\ref{method-matcher}, for example.
 
 \section{Performance}\label{performance}
 
@@ -826,9 +826,9 @@ Sect.~\ref{benchmark-result} shows the benchmark results of Egison and the propo
 There are cases that the performance of pattern matching improves by adding proper match clauses to a matcher.
 This subsection introduces such examples.
 
-First, we can improve the performance of the \texttt{Multiset} implementation in Sect.~\ref{method-matcher} using this method.
-The \texttt{Multiset} matcher definition below has a new match clause in the 6th line.
-This match clause describes a pattern-matching algorithm for the \texttt{cons} pattern whose second argument is a wildcard.
+First, we can improve the performance of the \lstinline{Multiset} implementation in Sect.~\ref{method-matcher} using this method.
+The \lstinline{Multiset} matcher definition below has a new match clause in the 6th line.
+This match clause describes a pattern-matching algorithm for the \lstinline{cons} pattern whose second argument is a wildcard.
 In this case, we do not need to calculate the rest collection.
 The cost for calculating the rest collection is so high that the performance dramatically improves by adding this new match clause.
 
@@ -851,11 +851,11 @@ The cost for calculating the rest collection is so high that the performance dra
         [pvar `{{[,pvar Something ,t]}}]))))
 \end{lstlisting}
 
-Here is another example from the \texttt{List} matcher.
-The cost of pattern matching for the \texttt{join} pattern is high.
+Here is another example from the \lstinline{List} matcher.
+The cost of pattern matching for the \lstinline{join} pattern is high.
 However, the cost for enumerating only the tail parts is low; we can write a tail recursive function for enumerating the tail parts.
-When we use join patterns, the first argument of \texttt{join} is often a wildcard.
-Therefore, by adding a match clause for a \texttt{join} pattern whose first argument is a wildcard as follows, we can improve the efficiency of pattern matching for a list.
+When we use join patterns, the first argument of \lstinline{join} is often a wildcard.
+Therefore, by adding a match clause for a \lstinline{join} pattern whose first argument is a wildcard as follows, we can improve the efficiency of pattern matching for a list.
 
 \begin{lstlisting}[language=egison]
 (define List
@@ -932,7 +932,7 @@ The reason for these performance differences is that Gauche, a scheme implementa
 Adding a matcher clause for an inductive pattern with wildcards is effective for both Egison and Scheme.
 This trick improves the performance of Egison and Scheme around $6$ times and $40$ times respectively for $n=800$.
 The performance improvement is larger for Scheme than Egison because Scheme is a strict language.
-Scheme always evaluates ``\texttt{(append hs ts)}'' in the 9th line of the \texttt{Multiset} definition in Sect.~\ref{method-matcher} whereas Egison evaluates the corresponding expression only when it is necessary.
+Scheme always evaluates ``\lstinline{(append hs ts)}'' in the 9th line of the \lstinline{Multiset} definition in Sect.~\ref{method-matcher} whereas Egison evaluates the corresponding expression only when it is necessary.
 
 \new{
 We can also observe that pattern-matching-oriented programming style is only two times slower than functional programming style in this case, though the program in pattern-matching-oriented programming style much simpler.
@@ -951,7 +951,7 @@ Implementation of these pattern constructs is future work.
 
 Integration of Egison pattern matching with a programming language with a static type system remains as future work.
 Though we have an experimental Template Haskell implementation~\cite{egisonHaskell}, this Haskell implementation currently has a problem that it does not allow users to define new pattern constructors.
-The Haskell program below shows the definition of \texttt{Pattern a}, which is a data type for patterns against data whose type is \texttt{a}.
+The Haskell program below shows the definition of \lstinline{Pattern a}, which is a data type for patterns against data whose type is \lstinline{a}.
 Haskell does not allow to add new data constructors to a data type defined in a different file.\todo{cite: data family overlapping}
 Therefore, users cannot add a new pattern constructor in their program.
 Currently, we are working to find a method for avoiding this problem.
@@ -1000,11 +1000,11 @@ I hope this work leads to the further development and propagation of advanced pa
 
 \section{Pattern Matching with Infinitely Many Results}\label{pm-inf}
 
-\texttt{match-all} provided by \texttt{stream-egison.scm} supports pattern matching with infinitely many results.
+\lstinline{match-all} provided by \texttt{stream-egison.scm} supports pattern matching with infinitely many results.
 A library for streams described in SRFI 41~\cite{bewig2007scheme} is used for handling lazy lists.
-The following \texttt{match-all} expressions extract an infinite list of twin primes and prime triplets from a stream of prime numbers.
+The following \lstinline{match-all} expressions extract an infinite list of twin primes and prime triplets from a stream of prime numbers.
 
-\todo{\texttt{bpsw-prime?}, \texttt{stream-iota}, \texttt{stream-take}}
+\todo{\lstinline{bpsw-prime?}, \lstinline{stream-iota}, \lstinline{stream-take}}
 
 \begin{lstlisting}[language=egison]
 (load "./stream-egison.scm")
@@ -1028,16 +1028,16 @@ The following \texttt{match-all} expressions extract an infinite list of twin pr
 ; ((5 7 11) (7 11 13) (11 13 17) (13 17 19) (17 19 23) (37 41 43) (41 43 47) (67 71 73))
 \end{lstlisting}
 
-In the languages whose default evaluation strategy is non-strict as Haskell and Egison, we do not need to distinguish these two \texttt{match-all} implementations.
+In the languages whose default evaluation strategy is non-strict as Haskell and Egison, we do not need to distinguish these two \lstinline{match-all} implementations.
 
 \section{Basic List Processing Functions in Pattern-Matching-Oriented Style}\label{pmo-list}
 
-Pattern matching for non-free data types enables more intuitive definitions of even the basic list processing functions such as \texttt{map}, \texttt{concat}, and \texttt{unique} by confining recursion inside a pattern.
+Pattern matching for non-free data types enables more intuitive definitions of even the basic list processing functions such as \lstinline{map}, \lstinline{concat}, and \lstinline{unique} by confining recursion inside a pattern.
 
-The \texttt{map} function is defined using pattern matching as follows.
-The \texttt{(join _ (cons x _))} pattern matches each element of a target list.
+The \lstinline{map} function is defined using pattern matching as follows.
+The \lstinline{(join _ (cons x _))} pattern matches each element of a target list.
 In this paper, we call this pattern \emph{join-cons pattern} because it often appears in list programming.
-Combining a join-cons pattern with \texttt{match-all}, we can simply implement the \texttt{map} function.
+Combining a join-cons pattern with \lstinline{match-all}, we can simply implement the \lstinline{map} function.
 
 \begin{lstlisting}[language=egison]
 (define pm-map
@@ -1049,7 +1049,7 @@ Combining a join-cons pattern with \texttt{match-all}, we can simply implement t
 ; (11 12 13 14)
 \end{lstlisting}
 
-\noindent By doubling nesting the above join-cons pattern, we can define the \texttt{concat} function.
+\noindent By doubling nesting the above join-cons pattern, we can define the \lstinline{concat} function.
 Note that, we can create a matcher for such as a list of lists and a multiset of multisets by composing matchers.
 
 \begin{lstlisting}[language=egison]
