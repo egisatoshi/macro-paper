@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{29}
+\begin{thebibliography}{33}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -146,6 +146,26 @@
 \shownote{[Online; accessed 4-June-2019].}
 
 
+\bibitem[\protect\citeauthoryear{Antoy}{Antoy}{2001}]%
+        {antoy2001constructor}
+\bibfield{author}{\bibinfo{person}{Sergio Antoy}.}
+  \bibinfo{year}{2001}\natexlab{}.
+\newblock \showarticletitle{Constructor-based conditional narrowing}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 3rd ACM SIGPLAN international
+  conference on Principles and practice of declarative programming}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Antoy}{Antoy}{2010}]%
+        {antoy2010programming}
+\bibfield{author}{\bibinfo{person}{Sergio Antoy}.}
+  \bibinfo{year}{2010}\natexlab{}.
+\newblock \showarticletitle{Programming with narrowing: A tutorial}.
+\newblock \bibinfo{journal}{\emph{Journal of Symbolic Computation}}
+  \bibinfo{volume}{45}, \bibinfo{number}{5} (\bibinfo{year}{2010}).
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Bewig}{Bewig}{2007}]%
         {bewig2007scheme}
 \bibfield{author}{\bibinfo{person}{Philip~L Bewig}.}
@@ -221,6 +241,15 @@
 \shownote{\url{https://racket-lang.org/tr1/}.}
 
 
+\bibitem[\protect\citeauthoryear{Hanus}{Hanus}{2007}]%
+        {hanus2007multi}
+\bibfield{author}{\bibinfo{person}{Michael Hanus}.}
+  \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{Multi-paradigm declarative languages}. In
+  \bibinfo{booktitle}{\emph{International Conference on Logic Programming}}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Harrison}{Harrison}{2009}]%
         {harrison2009handbook}
 \bibfield{author}{\bibinfo{person}{John Harrison}.}
@@ -275,6 +304,21 @@
 \newblock \bibinfo{title}{{Revised 7 Report on the Algorithmic Language
   Scheme}}.
 \newblock
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Sperber, Dybvig, Flatt, Van~Straaten, Findler,
+  and Matthews}{Sperber et~al\mbox{.}}{2009}]%
+        {sperber2009revised}
+\bibfield{author}{\bibinfo{person}{Michael Sperber}, \bibinfo{person}{R~Kent
+  Dybvig}, \bibinfo{person}{Matthew Flatt}, \bibinfo{person}{Anton
+  Van~Straaten}, \bibinfo{person}{Robby Findler}, {and} \bibinfo{person}{Jacob
+  Matthews}.} \bibinfo{year}{2009}\natexlab{}.
+\newblock \showarticletitle{Revised 6 report on the algorithmic language
+  Scheme}.
+\newblock \bibinfo{journal}{\emph{Journal of Functional Programming}}
+  \bibinfo{volume}{19}, \bibinfo{number}{S1} (\bibinfo{year}{2009}),
+  \bibinfo{pages}{1--301}.
 \newblock
 
 
