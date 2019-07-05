@@ -18,6 +18,8 @@
 \newcommand{\new}[1]{\textcolor{blue}{#1}}
 
 \usepackage{multicol}
+\usepackage{caption}
+\usepackage{subcaption}
 
 \usepackage{xcolor}
 \definecolor{P@Blue}{named}{blue}
@@ -131,14 +133,16 @@
   % Context:
   Pattern matching is an important feature of programming languages for data abstraction.
   Many pattern-matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable.
-  Among them, a pattern-matching system proposed by Egi and Nishiwaki features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking, (ii) extensibility of pattern-matching algorithms, and (iii) polymorphic patterns.
+%  Among them, a pattern-matching system proposed by Egi and Nishiwaki features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking, (ii) extensibility of pattern-matching algorithms, and (iii) polymorphic patterns.
+  Among them, a pattern-matching system proposed by Egi and Nishiwaki features practical pattern matching for non-free data types by providing an extensible non-linear pattern-matching facility with backtracking.
   % Inquiry:
   They implemented their proposal in an interpreter of the Egison programming language.
   % Approach:
   This paper presents a method for compiling this Egison pattern matching by introducing Scheme macros.
-  The key idea of this method is transformation of a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target.\todo{more detail}
+  This method is based on the three key ideas: (i) transformation of a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target, (ii) compilation of \texttt{match-all} to application of the \texttt{map} function, and (iii) transformation of a value pattern to a function that takes an intermediate pattern-matching result and returns a value.
   % Knowledge
-  This paper also demonstrates the expressiveness of this pattern-matching system by showing redefinitions of the basic list processing functions such as \lstinline{map}, \lstinline{concat}, or \lstinline{unique}, and implementation of a SAT solver as a more practical mathematical algorithm.
+  This paper also presents a benchmark result that shows Egison pattern-matching embedded in Gauche Scheme is faster than the original Egison interpreter.
+%  This paper also demonstrates the expressiveness of this pattern-matching system by showing redefinitions of the basic list processing functions such as \lstinline{map}, \lstinline{concat}, or \lstinline{unique}, and implementation of a SAT solver as a more practical mathematical algorithm.
   
   % Grounding, and Importance:  
 \end{abstract}
@@ -353,7 +357,7 @@ This work can be easily ported to other relatives of Scheme.
 For example, Yuito Murase has exported the proposed Scheme macros to Common Lisp~\cite{egisonLisp}.
 
 
-\section{Usage of Proposed Macros}\label{usage}
+\section{Syntax of Proposed Macros}\label{usage}
 
 This section introduces the usage of the pattern-matching expressions provided by the proposed Scheme macros.
 \new{
@@ -511,25 +515,8 @@ Sect. 5.1 of the original paper of Egison~\cite{egi2018aplas} shows a figure of 
 
 \medskip
 
-The \lstinline{processMState} function below implements this process.
-\lstinline{processMState} takes a matching state as its argument and returns a list of next matching states.
-In the program below, several matching clauses are omitted for simplification.
-``\lstinline{...}'' in the 4th line represents this omission.
-
-The match clause in the 5th and 6th lines describes the case where the matcher of the top matching atom is \lstinline{Something}.
-In this case, the value of the target \lstinline{t} is added to the intermediate pattern-matching result.
-The reason why an intermediate result is a list of values and not a list of pairs of a symbol and a value is explained in Sect.~\ref{method-map}.
-\todo{definition of Something.}\lstinline{(define Something 'Something)}
-
-The match clause in the 7th-9th lines describes the general case.
-The list of lists of next matching atoms is calculated in the 8th line.
-In this Scheme implementation, a matcher is a function that takes a pattern and a target, and returns a list of lists of the next matching atoms as explained again in Sect.~\ref{method-matcher}.
-
-In the program below, the matching clauses for and-patterns, or-patterns, not-patterns, and later patterns introduced in Sect.~\ref{usage} are omitted.
-We can implement these pattern constructs by adding match clauses for them.
-We can see the full implementation of \lstinline{processMState} in \texttt{egison.scm} in the GitHub repository of the proposed macros~\cite{egisonScheme}.
-
-%\begin{figure}[h]
+\begin{figure}[t]
+ \begin{subfigure}[b]{1.0\linewidth}
 \begin{lstlisting}[language=egison]
 (define processMState
   (lambda (mState)
@@ -541,24 +528,11 @@ We can see the full implementation of \lstinline{processMState} in \texttt{egiso
        (let {[next-matomss (M p t)]}
          (map (lambda (next-matoms) `(MState ,(append next-matoms mStack) ,ret)) next-matomss))])))
 \end{lstlisting}
-%  \caption{The \texttt{processMState} function}
-%  \label{fig:processMState}
-%\end{figure}
-
-\medskip
-
-The \lstinline{processMStates} below implements the whole pattern-matching process while the above \lstinline{processMState} implements a step of this pattern-matching process.
-\lstinline{processMStates} takes a list of matching states as its argument and returns all pattern-matching results.
-The first match clause (line 4) describes the case where a list of matching states is empty.
-In this case, \lstinline{processMStates} returns an empty list and terminates the pattern-matching procedure.
-The second match clause (lines 5 and 6) describes the case where the stack of the first matching state is empty.
-In this case, the intermediate pattern-matching result of this matching state is added to the return value of \lstinline{processMStates} as a final result of pattern matching.
-\lstinline{processMStates} is recursively called for the rest matching states.
-The third match clause (lines 7 and 8) describes the general case.
-In this case, \lstinline{processMState} is called for the first matching state.
-\lstinline{processMStates} is recursively called for the result of appending the result of this \lstinline{processMState} and the rest matching states.
-
-%\begin{figure}[h]
+  \caption{The \texttt{processMState} function}
+  \label{fig:processMState}
+ \end{subfigure}
+  \medskip
+ \begin{subfigure}[b]{1.0\linewidth}
 \begin{lstlisting}[language=egison]
 (define processMStates
   (lambda (mStates)
@@ -569,22 +543,11 @@ In this case, \lstinline{processMState} is called for the first matching state.
       [(mState . rs)
        (processMStates (append (processMState mState) rs))])))
 \end{lstlisting}
-%  \caption{The \texttt{processMStates} function}
-%  \label{fig:processMStates}
-%\end{figure}
-
-The above implementation is from \texttt{egison.scm}~\cite{egisonScheme} that does not support pattern matching with infinitely many results.
-In \lstinline{processMStates} of \texttt{stream-egison.scm}~\cite{egisonScheme}, the traversal of an infinitely large search tree is implemented that is explained in Sect.~5.2 of the original Egison paper~\cite{egi2018aplas}.
-Appendix~\ref{pm-inf} demonstrates pattern matching that uses the macros provided by \texttt{stream-egison.scm}.
-
-\new{
-\texttt{processMStates} strictly evaluates all the pattern-matching results even when only the first pattern-matching result is used.
-Consequently, sharing the same \texttt{processMStates} function with \texttt{match-first} is inefficient.
-For that reason, the \texttt{processMStates1} function below is used for \texttt{match-first} instead of \texttt{processMStates}.
-\texttt{processMStates1} is defined to return only the first pattern-matching result.
-This distinct implementation of \lstinline{processMStates} is not necessary for the Egison language that adopt a lazy evaluation strategy.
-}
-
+  \caption{The \texttt{processMStates} function}
+  \label{fig:processMStates}
+ \end{subfigure}
+  \medskip
+ \begin{subfigure}[b]{1.0\linewidth}
 \begin{lstlisting}[language=egison]
 (define processMStates1
   (lambda (mStates)
@@ -595,6 +558,59 @@ This distinct implementation of \lstinline{processMStates} is not necessary for 
       [(mState . rs)
        (processMStates1 (append (processMState mState) rs))])))
 \end{lstlisting}
+  \caption{The \texttt{processMStates1} function}
+  \label{fig:processMStates1}
+ \end{subfigure}
+ \caption{Implementation of the Egison pattern matching procedure in Scheme}
+\end{figure}
+
+The \lstinline{processMState} function in Fig.~\ref{fig:processMState} implements this process.
+\lstinline{processMState} takes a matching state as its argument and returns a list of next matching states.
+In the program in Fig.~\ref{fig:processMState}, several matching clauses are omitted for simplification.
+``\lstinline{...}'' in the 4th line represents this omission.
+
+The match clause in the 5th and 6th lines describes the case where the matcher of the top matching atom is \lstinline{Something}.
+In this case, the value of the target ``\lstinline{t}'' is added to the intermediate pattern-matching result.
+%The reason why an intermediate result is a list of values and not a list of pairs of a symbol and a value is explained in Sect.~\ref{method-map}.
+The \lstinline{Something} matcher is simply defined as follows.
+
+\begin{lstlisting}[language=egison]
+(define Something 'Something)
+\end{lstlisting}
+
+
+The match clause in the 7th-9th lines describes the general case.
+The list of lists of next matching atoms is calculated in the 8th line.
+In this Scheme implementation, a matcher is a function that takes a pattern and a target, and returns a list of lists of the next matching atoms as explained again in Sect.~\ref{method-matcher}.
+
+In the program in Fig.~\ref{fig:processMState}, the matching clauses for and-patterns, or-patterns, not-patterns, and later patterns introduced in Sect.~\ref{usage} are omitted.
+We can implement these pattern constructs by adding match clauses for them.
+We can see the full implementation of \lstinline{processMState} in \texttt{egison.scm} in the GitHub repository of the proposed macros~\cite{egisonScheme}.
+
+\medskip
+
+The \lstinline{processMStates} in Fig.~\ref{fig:processMStates} implements the whole pattern-matching process while the above \lstinline{processMState} implements a step of this pattern-matching procedure.
+\lstinline{processMStates} takes a list of matching states as its argument and returns all pattern-matching results.
+The first match clause (line 4) describes the case where a list of matching states is empty.
+In this case, \lstinline{processMStates} returns an empty list and terminates the pattern-matching procedure.
+The second match clause (lines 5 and 6) describes the case where the stack of the first matching state is empty.
+In this case, the intermediate pattern-matching result of this matching state is added to the return value of \lstinline{processMStates} as a final result of pattern matching.
+\lstinline{processMStates} is recursively called for the rest matching states.
+The third match clause (lines 7 and 8) describes the general case.
+In this case, \lstinline{processMState} is called for the first matching state.
+\lstinline{processMStates} is recursively called for the result of appending the result of this \lstinline{processMState} and the rest matching states.
+
+The above implementation is from \texttt{egison.scm}~\cite{egisonScheme} that does not support pattern matching with infinitely many results.
+In \lstinline{processMStates} of \texttt{stream-egison.scm}~\cite{egisonScheme}, the traversal of an infinitely large search tree is implemented that is explained in Sect.~5.2 of the original Egison paper~\cite{egi2018aplas}.
+Appendix~\ref{pm-inf} demonstrates pattern matching that uses the macros provided by \texttt{stream-egison.scm}.
+
+\new{
+\texttt{processMStates} strictly evaluates all the pattern-matching results even when only the first pattern-matching result is used.
+Consequently, sharing the same \texttt{processMStates} function with \texttt{match-first} is inefficient.
+For that reason, the \texttt{processMStates1} function in Fig.~\ref{fig:processMStates1} is used for \texttt{match-first} instead of \texttt{processMStates}.
+\texttt{processMStates1} is defined to return only the first pattern-matching result.
+This distinct implementation of \lstinline{processMStates} is not necessary for the Egison language that adopt a lazy evaluation strategy.
+}
 
 \section{Implementation Method}\label{method}
 
@@ -805,10 +821,18 @@ Therefore, by adding a match clause for a \lstinline{join} pattern whose first a
 
 I compared the performance of a nested \texttt{cons} pattern for a multiset.
 For benchmarking Egison and the proposed Scheme macros, I used the following expressions.
+\new{
+\texttt{between} is a function of Egison that returns a list that contains sequential integers between the first and second argument.
+}
 
 \begin{lstlisting}[language=egison]
 (match-all (between 1 n) (multiset something) [<cons $x <cons $y _>> [x y]])
 \end{lstlisting}
+
+\noindent
+\new{
+Similarly, \texttt{iota} is a function in Scheme that returns a list of sequential integers that starts from the integer of the second argument.
+}
 
 \begin{lstlisting}[language=egison]
 (match-all (iota n 1) (Multiset Something) ((cons x (cons y _)) `(,x ,y)))
@@ -850,6 +874,9 @@ Scheme (functional style) & 0.026 & 0.042 & 0.107 & 0.373 & 1.618 & 7.949 \\ \hl
 \end{table}
 
 Table~\ref{table:benchmark} shows the benchmark results.
+\new{
+I ran all the benchmarks five times and took a median for each of them.
+}
 For all the benchmarks, Scheme is faster than Egison.
 The reason for these performance differences is that Gauche, a scheme implementation I used for the benchmark, has a compiler while Egison has only a simple interpreter implementation.
 
@@ -879,9 +906,9 @@ Integration of Egison pattern matching with a programming language with a static
 Though we have an experimental Template Haskell implementation~\cite{egisonHaskell}, this Haskell implementation currently has a limitation that it does not allow users to define new pattern constructors.
 \new{
 For example, the \lstinline{nil}, \lstinline{cons}, and \lstinline{join} pattern constructors are built-in in the current implementation.
-This limitation comes from the limitation of Haskell that does not allow overlapping data families.
-Currently, patterns are defined in the library as data of \lstinline{Pattern a}, which is a data type for patterns against data whose type is \lstinline{a}.
-Users cannot add new data constructors in \lstinline{Pattern a} in their program for adding new pattern constructors because of overlap is not permitted.
+This limitation comes from the limitation of Haskell that does not allow overlapping data families.\todo{cite}
+In the current Template Haskell implementation of Egison, patterns are defined in the library as data of ``\lstinline{Pattern a}'', which is a data type for patterns against data whose type is ``\lstinline{a}''.
+Users cannot add new data constructors in ``\lstinline{Pattern a}'' in their program for adding new pattern constructors because of overlap is not permitted.
 }
 Currently, we are working to find a method for avoiding this problem.
 
@@ -900,11 +927,12 @@ This pattern matching library will help the research of pattern matching by prov
 This pattern matching library will also help the education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
 I hope this work leads to the further development and propagation of advanced pattern matching.
 
-%\begin{acks}
-%  I thank Yuichi Nishiwaki for his advice ...
-%  I thank Yuito Murase for implementing Common Lisp macros.
-%  I thank Mayuko Kori for helping me for implementing Template Haskell implementation of the proposed Scheme macros.
-%\end{acks}
+\begin{acks}
+  I thank Yuichi Nishiwaki for constructive discussion while implementing the proposed Scheme macros and writing this paper.
+  I thank Yuito Murase for implementing the proposed macros in Common Lisp.
+  I thank Mayuko Kori for implementing the proposed macros using Template Haskell.
+  Finally, I greatly thank the programming committee members of the 20th Scheme and Functional Programming Workshop for their reviews that dramatically improved this paper.
+\end{acks}
 
 
 % Bibliography
@@ -915,44 +943,11 @@ I hope this work leads to the further development and propagation of advanced pa
 
 \appendix
 
-\section{Pattern Matching with Infinitely Many Results}\label{pm-inf}
-
-\lstinline{match-all} provided by \texttt{stream-egison.scm} supports pattern matching with infinitely many results.
-A library for streams described in SRFI 41~\cite{bewig2007scheme} is used for handling lazy lists.
-The following \lstinline{match-all} expressions extract an infinite list of twin primes and prime triplets from a stream of prime numbers.
-
-\todo{\lstinline{bpsw-prime?}, \lstinline{stream-iota}, \lstinline{stream-take}}
-
-\begin{lstlisting}[language=egison]
-(load "./stream-egison.scm")
-
-(define stream-primes (stream-filter bpsw-prime? (stream-iota -1)))
-
-(stream->list
- (stream-take
-  (match-all stream-primes (List Integer)
-             [(join _ (cons p (cons ,(+ p 2) _)))
-              `(,p ,(+ p 2))])
-  10))
-; ((3 5) (5 7) (11 13) (17 19) (29 31) (41 43) (59 61) (71 73) (101 103) (107 109))
-
-(stream->list
- (stream-take
-  (match-all stream-primes (List Integer)
-             [(join _ (cons p (cons (and (or ,(+ p 2) ,(+ p 4)) m) (cons ,(+ p 6) _))))
-              `(,p ,m ,(+ p 6))])
-  8))
-; ((5 7 11) (7 11 13) (11 13 17) (13 17 19) (17 19 23) (37 41 43) (41 43 47) (67 71 73))
-\end{lstlisting}
-
-In the languages whose default evaluation strategy is non-strict as Haskell and Egison, we do not need to distinguish these two \lstinline{match-all} implementations.
-
-
 \section{Pattern-Matching-Oriented Programming}\label{apps}
 
 \new{
 The expressive power of Egison pattern matching is so expressive that a new programming style called \emph{pattern-matching-oriented programming style} arises.
-This programming style makes descriptions of mathematical algorithms concise by confining explicit recursions for traversing data inside intuitive patterns.\todo{fix}
+This programming style makes descriptions of mathematical algorithms concise by confining explicit recursions for traversing data inside intuitive patterns.
 This section shows several sample programs in this programming style.
 I am currently preparing another paper for discussing pattern-matching-oriented programming techniques.
 We can execute programs shown in this section by loading a program in \cite{egisonScheme} on Gauche~\cite{gaucheWeb}.
@@ -1072,6 +1067,39 @@ In this match clause, we assign \lstinline{v} false at once.
 The final match clause (lines 18-20) matches when pattern matching for all the above match clauses fails.
 This match clause applies the resolution principle.
 }
+
+
+\section{Pattern Matching with Infinitely Many Results}\label{pm-inf}
+
+\lstinline{match-all} provided by \texttt{stream-egison.scm} supports pattern matching with infinitely many results.
+A library for streams described in SRFI 41~\cite{bewig2007scheme} is used for handling lazy lists.
+The following \lstinline{match-all} expressions extract an infinite list of twin primes and prime triplets from a stream of prime numbers.
+
+\todo{\lstinline{bpsw-prime?}, \lstinline{stream-iota}, \lstinline{stream-take}}
+
+\begin{lstlisting}[language=egison]
+(load "./stream-egison.scm")
+
+(define stream-primes (stream-filter bpsw-prime? (stream-iota -1)))
+
+(stream->list
+ (stream-take
+  (match-all stream-primes (List Integer)
+             [(join _ (cons p (cons ,(+ p 2) _)))
+              `(,p ,(+ p 2))])
+  10))
+; ((3 5) (5 7) (11 13) (17 19) (29 31) (41 43) (59 61) (71 73) (101 103) (107 109))
+
+(stream->list
+ (stream-take
+  (match-all stream-primes (List Integer)
+             [(join _ (cons p (cons (and (or ,(+ p 2) ,(+ p 4)) m) (cons ,(+ p 6) _))))
+              `(,p ,m ,(+ p 6))])
+  8))
+; ((5 7 11) (7 11 13) (11 13 17) (13 17 19) (17 19 23) (37 41 43) (41 43 47) (67 71 73))
+\end{lstlisting}
+
+In the languages whose default evaluation strategy is non-strict as Haskell and Egison, we do not need to distinguish these two \lstinline{match-all} implementations.
 
 
 \end{document}

@@ -1,0 +1,4 @@
+  I thank Yuichi Nishiwaki for constructive discussion while implementing the proposed Scheme macros and writing this paper.
+  I thank Yuito Murase for implementing the proposed macros in Common Lisp.
+  I thank Mayuko Kori for implementing the proposed macros using Template Haskell.
+  Finally, I greatly thank the programming committee members of the 20th Scheme and Functional Programming Workshop for their reviews that dramatically improved this paper.
