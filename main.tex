@@ -16,6 +16,7 @@
 
 \newcommand{\todo}[1]{\textcolor{red}{(TODO: #1)}}
 \newcommand{\new}[1]{\textcolor{blue}{#1}}
+%\newcommand{\new}[1]{#1}
 
 \usepackage{multicol}
 \usepackage{caption}
@@ -411,7 +412,7 @@ The both \texttt{match-all} and \texttt{match-first} expression can take multipl
 \lstinline{Something} can handle only wildcards or pattern variables, and is the only matcher that can bind a value to a pattern variable.
 }
 
-This pattern-matching library provides several pattern constructs.
+The proposed macros provide several pattern constructs.
 The rest of this subsection explains each of them.
 
 \subsection{Wildcard and Pattern Variables}
@@ -514,7 +515,11 @@ Each list of the next matching atoms is pushed on the stack of matching atoms of
 As a result, a single matching state is reduced to multiple stacks of matching states in a single reduction step.
 Pattern matching is recursively executed for each matching state.
 When a stack becomes empty, it means pattern matching for this matching state succeeded.
+\new{
 Fig.~\ref{fig:reductionPath} shows a sample of this reduction.
+The matching state that is not grayed-out in the $i$-th row is reduced to matching states in the $(i+1)$-th row.
+For example, the first matching state in the second row is reduced to the matching state in the third row.
+}
 
 %\begin{figure}[t]
 %\begin{center}
@@ -546,11 +551,11 @@ Fig.~\ref{fig:reductionPath} shows a sample of this reduction.
     \toprule
     1 &  \texttt{(MState \{[(cons m (cons ,m _)) (Multiset Integer) \{2 8 2\}]\} \{\})} \\ \hline
     2 &  \thead[l]{\texttt{(MState \{[m Integer 2] [(cons ,m _) (Multiset Integer) \{8 2\}]\} \{\})} \\
-                   \texttt{(MState \{[m Integer 8] [(cons ,m _) (Multiset Integer) \{2 2\}]\} \{\})} \\
-                   \texttt{(MState \{[m Integer 2] [(cons ,m _) (Multiset Integer) \{2 8\}]\} \{\})}} \\ \hline
+                   \textcolor{gray}{\texttt{(MState \{[m Integer 8] [(cons ,m _) (Multiset Integer) \{2 2\}]\} \{\})}} \\
+                   \textcolor{gray}{\texttt{(MState \{[m Integer 2] [(cons ,m _) (Multiset Integer) \{2 8\}]\} \{\})}}} \\ \hline
     3 &  \texttt{(MState \{[m Something 2] [(cons ,m _) (Multiset Integer) \{8 2\}]\} \{\})} \\ \hline
     4 &  \texttt{(MState \{[(cons ,m _) (Multiset Integer) \{8 2\}]\} \{[m 2]\})} \\ \hline
-    5 &  \thead[l]{\texttt{(MState \{[,m Integer 8] [_ (Multiset Integer) \{2\}]\} \{[m 2]\})} \\
+    5 &  \thead[l]{\textcolor{gray}{\texttt{(MState \{[,m Integer 8] [_ (Multiset Integer) \{2\}]\} \{[m 2]\})}} \\
                    \texttt{(MState \{[,m Integer 2] [_ (Multiset Integer) \{8\}]\} \{[m 2]\})}} \\ \hline
     6 &  \texttt{(MState \{[_ (Multiset Integer) \{8\}]\} \{[m 2]\})} \\ \hline
     7 &  \texttt{(MState \{[_ Something \{8\}]\} \{[m 2]\})} \\ \hline
@@ -835,18 +840,13 @@ The cost for calculating the rest of the collection is so high that the performa
   (lambda (M)
     (lambda (p t)
       (match p
-        [('nil) (if (eq? t '{}) '{{}} '{})]
+        ...
         [('cons px '_) (map (lambda (x) `{[,px ,M ,x]}) t)]
         [('cons px py)
          (map (lambda (xy) `{[,px ,M ,(car xy)] [,py ,(Multiset M) ,(cadr xy)]})
               (match-all t (List M)
                 [(join hs (cons x ts)) `(,x ,(append hs ts))]))]
-        [('val v)
-         (match-first `[,t ,v] `[,(List M) ,(Multiset M)]
-           ['[(nil) (nil)] '{{}}]
-           ['[(cons x xs) (cons ,x ,xs)] '{{}}]
-           ['[_ _] '{}])]
-        [pvar `{{[,pvar Something ,t]}}]))))
+        ...))))
 \end{lstlisting}
 
 Here is another example from the \lstinline{List} matcher.
