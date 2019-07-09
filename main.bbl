@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{33}
+\begin{thebibliography}{34}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -282,6 +282,16 @@
 \newblock \showarticletitle{A symbol manipulation system}.
 \newblock \bibinfo{journal}{\emph{Machine Intelligence}}  \bibinfo{volume}{5}
   (\bibinfo{year}{1969}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Peyton~Jones}{Peyton~Jones}{1987}]%
+        {peyton1987implementation}
+\bibfield{author}{\bibinfo{person}{Simon Peyton~Jones}.}
+  \bibinfo{year}{1987}\natexlab{}.
+\newblock \bibinfo{booktitle}{\emph{The implementation of functional
+  programming languages}}.
+\newblock \bibinfo{publisher}{Prentice-Hall, Inc.}
 \newblock
 
 
