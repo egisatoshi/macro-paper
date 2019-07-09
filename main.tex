@@ -344,7 +344,7 @@ Queinnec~\cite{queinnec1990compilation} also pursued expressive pattern matching
 Though this proposal is specialized to lists and not extensible, the proposed pattern-matching system is as expressive as Egison.
 The proposed system supports the \lstinline{cons} and the \lstinline{join} patterns, \lstinline{match-all}, not-patterns, and recursive patterns.
 
-\todo{Seems like PLT Redex and logic programming may be related work, and also pattern matching with segment variables and backtracking.}
+%\todo{Seems like PLT Redex and logic programming may be related work, and also pattern matching with segment variables and backtracking.}
 
 \subsection{Implementation History of Pattern Matching in Scheme}\label{history2}
 
@@ -830,7 +830,7 @@ The \lstinline{Multiset} matcher definition below has a new match clause in the 
 This match clause describes a pattern-matching algorithm for the \lstinline{cons} pattern whose second argument is a wildcard.
 In this case, we do not need to calculate the rest of the collection.
 The cost for calculating the rest of the collection is so high that the performance dramatically improves by adding this new match clause.
-\todo{why expensive?}
+%\todo{why expensive?}
 
 \begin{lstlisting}[language=egison]
 (define Multiset
@@ -853,7 +853,7 @@ The cost for calculating the rest of the collection is so high that the performa
 
 Here is another example from the \lstinline{List} matcher.
 The cost of pattern matching for the \lstinline{join} pattern is high.
-\todo{why expensive?}
+%\todo{why expensive?}
 However, the cost for enumerating only the tail parts is low; we can write a tail recursive function for enumerating the tail parts.
 When we use join patterns, the first argument of \lstinline{join} is often a wildcard.
 Therefore, by adding a match clause for a \lstinline{join} pattern whose first argument is a wildcard as follows, we can improve the efficiency of pattern matching for a list.
@@ -968,7 +968,7 @@ Integration of Egison pattern matching with a programming language with a static
 Though we have an experimental Template Haskell implementation~\cite{egisonHaskell}, this Haskell implementation currently has a limitation that it does not allow users to define new pattern constructors.
 \new{
 For example, the \lstinline{nil}, \lstinline{cons}, and \lstinline{join} pattern constructors are built-in in the current implementation.
-This limitation comes from the limitation of Haskell that does not allow overlapping data families.\todo{cite}
+This limitation comes from the limitation of Haskell that does not allow overlapping data families.~\cite{ghcMan}
 In the current Template Haskell implementation of Egison, patterns are defined in the library as data of ``\lstinline{Pattern a}'', which is a data type for patterns against data whose type is ``\lstinline{a}''.
 Users cannot add new data constructors in ``\lstinline{Pattern a}'' in their program for adding new pattern constructors because of overlap is not permitted.
 }
@@ -989,7 +989,7 @@ I hope this work leads to the further development and propagation of advanced pa
   I thank Yuichi Nishiwaki for constructive discussion while implementing the proposed Scheme macros and writing this paper.
   I thank Yuito Murase for implementing the proposed macros in Common Lisp.
   I thank Mayuko Kori for implementing the proposed macros using Template Haskell.
-  Finally, I greatly thank the programming committee members of the 20th Scheme and Functional Programming Workshop for their reviews that dramatically improved this paper.
+  Finally, I greatly thank the two anonymous reviewers of the 20th Scheme and Functional Programming Workshop for their reviews that dramatically improved this paper.
 \end{acks}
 
 
@@ -1017,8 +1017,9 @@ Pattern matching for non-free data types enables more intuitive definitions of e
 
 The \lstinline{map} function is defined using pattern matching as follows.
 The \lstinline{(join _ (cons x _))} pattern matches each element of a target list.
-In this paper, we call this pattern \emph{join-cons pattern} because it often appears in list programming.
+We call this pattern \emph{join-cons pattern} because it often appears in list programming.
 Combining a join-cons pattern with \lstinline{match-all}, we can simply implement the \lstinline{map} function.
+%This pattern-matching-oriented definition of \texttt{map} is more intuitive than the functional definition of \texttt{map} that uses explicit recursion.
 
 \begin{lstlisting}[language=egison]
 (define pm-map
@@ -1030,7 +1031,7 @@ Combining a join-cons pattern with \lstinline{match-all}, we can simply implemen
 ; (11 12 13 14)
 \end{lstlisting}
 
-\noindent By doubling nesting the above join-cons pattern, we can define the \lstinline{concat} function.
+\noindent By doubly nesting the above join-cons pattern, we can define the \lstinline{concat} function.
 Note that, we can create a matcher for such as a list of lists and a multiset of multisets by composing matchers.
 
 \begin{lstlisting}[language=egison]
@@ -1043,11 +1044,11 @@ Note that, we can create a matcher for such as a list of lists and a multiset of
 ; (1 2 3 4 5)
 \end{lstlisting}
 
-\todo{more detail explanation}
-By combining a not-pattern, we can define a \lstinline{unique} function.
-A not-pattern is used to describe that there is no more \lstinline{x} after an occurrence of \lstinline{x}.
-Therefore, this pattern extracts only the last appearance of each element.
-\todo{\lstinline{Eq} matcher}
+%\todo{more detail explanation}
+By combining a not-pattern with a doubly-nested join-cons pattern, we can also define a \lstinline{unique} function.
+The pattern below extracts only the last appearance of each element; a not-pattern is used to describe that there is no more \lstinline{x} after an occurrence of \lstinline{x}.
+\texttt{Eq} is a matcher that can handle pattern matching for a value pattern.
+\texttt{eq?} is used for checking equality.
 
 \begin{lstlisting}[language=egison]
 (define pm-unique-simple
@@ -1060,6 +1061,7 @@ Therefore, this pattern extracts only the last appearance of each element.
 \end{lstlisting}
 
 \noindent We can define \lstinline{unique} whose results consist of the first appearance of each element by using a later pattern.
+A later pattern is used to describe that there is no appearance of \texttt{x} in the target list for the first argument of the \texttt{join} pattern.
 
 {\footnotesize
 \begin{lstlisting}[language=egison]
@@ -1133,12 +1135,10 @@ This match clause applies the resolution principle.
 A library for streams described in SRFI 41~\cite{bewig2007scheme} is used for handling lazy lists.
 The following \lstinline{match-all} expressions extract an infinite list of twin primes and prime triplets from a stream of prime numbers.
 
-\todo{\lstinline{bpsw-prime?}, \lstinline{stream-iota}, \lstinline{stream-take}}
-
 \begin{lstlisting}[language=egison]
 (load "./stream-egison.scm")
 
-(define stream-primes (stream-filter bpsw-prime? (stream-iota -1)))
+(define stream-primes (stream-filter bpsw-prime? (stream-iota -1 1)))
 
 (stream->list
  (stream-take
@@ -1156,6 +1156,24 @@ The following \lstinline{match-all} expressions extract an infinite list of twin
   8))
 ; ((5 7 11) (7 11 13) (11 13 17) (13 17 19) (17 19 23) (37 41 43) (41 43 47) (67 71 73))
 \end{lstlisting}
+
+\noindent
+\new{
+\lstinline{bpsw-prime?} is a predicate that checks whether the argument positive integer is a prime number or not.
+This predicate is provided by the \texttt{math.prime} Gauche library~\cite{gauchePN}.
+\lstinline{stream-iota}, \lstinline{stream->list}, and \lstinline{stream-take} are provided by the \texttt{util.stream} Gauche library~\cite{gaucheST}.
+``\lstinline{(stream-iota -1 1)}'' returns a stream that contains all the positive integers.
+\lstinline{stream-take} returns a stream that contains the first elements of the first argument stream.
+The number of elements taken from the given stream is specified by the second argument.
+\lstinline{stream->list} is a function that converts the given stream to a list.
+}
+
+\begin{lstlisting}[language=egison]
+(stream->list (stream-take (stream-iota -1 1) 10))
+; (1 2 3 4 5 6 7 8 9 10)
+\end{lstlisting}
+
+
 
 In the languages whose default evaluation strategy is non-strict as Haskell and Egison, we do not need to distinguish these two \lstinline{match-all} implementations.
 

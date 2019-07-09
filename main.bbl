@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{34}
+\begin{thebibliography}{37}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -75,6 +75,19 @@
 \newblock \bibinfo{title}{{zeptometer/egison-common-lisp: Common Lisp Macros
   for Egison Pattern Matching}}.
 \newblock
+  \bibinfo{howpublished}{\url{https://github.com/zeptometer/egison-common-lisp}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 4-June-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{ghc}{2019}]%
+        {ghcMan}
+ \bibinfo{year}{2019}\natexlab{}.
+\newblock \bibinfo{title}{{13.1. Language options --- Glasgow Haskell Compiler
+  8.6.5 User's Guide}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html}}.
 \newblock
 \newblock
 \shownote{[Online; accessed 4-June-2019].}
@@ -85,6 +98,7 @@
  \bibinfo{year}{2019}\natexlab{a}.
 \newblock \bibinfo{title}{{Egison Manual - Basics of Patterns}}.
 \newblock
+  \bibinfo{howpublished}{\url{https://www.egison.org/manual/patterns.html}}.
 \newblock
 \newblock
 \shownote{[Online; accessed 4-June-2019].}
@@ -114,8 +128,30 @@
 
 
 \bibitem[\protect\citeauthoryear{??}{gau}{2019b}]%
-        {gaucheTM}
+        {gauchePN}
  \bibinfo{year}{2019}\natexlab{b}.
+\newblock \bibinfo{title}{{Gauche Users' Reference: Prime numbers}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://practical-scheme.net/gauche/man/gauche-refe/Prime-numbers.html}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 5-July-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{gau}{2019c}]%
+        {gaucheST}
+ \bibinfo{year}{2019}\natexlab{c}.
+\newblock \bibinfo{title}{{Gauche Users' Reference: Stream library}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://practical-scheme.net/gauche/man/gauche-refe/Stream-library.html}}.
+\newblock
+\newblock
+\shownote{[Online; accessed 5-July-2019].}
+
+
+\bibitem[\protect\citeauthoryear{??}{gau}{2019d}]%
+        {gaucheTM}
+ \bibinfo{year}{2019}\natexlab{d}.
 \newblock \bibinfo{title}{{Gauche Users' Reference: Traditional macros}}.
 \newblock
   \bibinfo{howpublished}{\url{https://practical-scheme.net/gauche/man/gauche-refe/Traditional-macros.html}}.
