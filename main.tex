@@ -141,10 +141,11 @@
   However, they implemented their proposal only in an interpreter of the Egison programming language.
   % Approach:
   This paper presents a method for compiling this Egison pattern matching by introducing Scheme macros.
+  \new{
   This method is based on the three key ideas: (i) transformation of a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target, (ii) compilation of \texttt{match-all} to application of the \texttt{map} function, and (iii) transformation of a value pattern to a function that takes an intermediate pattern-matching result and returns a value.
   % Knowledge
-  This paper also presents a benchmark result that shows Egison pattern-matching embedded in Gauche Scheme is faster than the original Egison interpreter.
-  
+  This paper also presents benchmark results that shows Egison pattern-matching embedded in Gauche Scheme is faster than the original Egison interpreter.
+  }
   % Grounding, and Importance:  
 \end{abstract}
 
