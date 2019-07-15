@@ -16,6 +16,7 @@
 
 \newcommand{\todo}[1]{\textcolor{red}{(TODO: #1)}}
 \newcommand{\new}[1]{\textcolor{blue}{#1}}
+\newcommand{\renew}[1]{\textcolor{purple}{#1}}
 %\newcommand{\new}[1]{#1}
 
 \usepackage{multicol}
@@ -43,12 +44,14 @@
   basicstyle=\small\ttfamily,%
   escapechar=\~,
   columns=fullflexible,
+  keepspaces=true,
   extendedchars=true,
   upquote=true,
   captionpos=t,
   backgroundcolor=\color{P@GrayBG},%
   breaklines=true,
-  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{P@Blue}\hookrightarrow\space}},
+%  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{P@Blue}\hookrightarrow\space}},
+  postbreak={},
   numbers=left,
 %  numberstyle=\P@listingnumbersfont,
   numbersep=.5em,
@@ -515,11 +518,18 @@ Each list of the next matching atoms is pushed on the stack of matching atoms of
 As a result, a single matching state is reduced to multiple stacks of matching states in a single reduction step.
 Pattern matching is recursively executed for each matching state.
 When a stack becomes empty, it means pattern matching for this matching state succeeded.
-\new{
-Fig.~\ref{fig:reductionPath} shows a sample of this reduction.
+\renew{
+Fig.~\ref{fig:reductionPath} shows the reduction path when executing the \lstinline{match-all} expression below.
 The matching state that is not grayed-out in the $i$-th row is reduced to matching states in the $(i+1)$-th row.
 For example, the first matching state in the second row is reduced to the matching state in the third row.
+\texttt{MState} takes two arguments, a stack of matching atoms and an intermediate pattern-matching result.
+The value pattern \lstinline{,m} is transformed to \lstinline{(val ,(lambda (m) m))}.
+This transformation is explained in Sect.~\ref{method-val-pat}.
 }
+
+\begin{lstlisting}[language=egison]
+(match-all '(2 8 2) (Multiset Integer) [(cons m (cons ,m _)) m]) ; (2 2)
+\end{lstlisting}
 
 %\begin{figure}[t]
 %\begin{center}
@@ -549,17 +559,17 @@ For example, the first matching state in the second row is reduced to the matchi
   \footnotesize
   \begin{tabular}{ll}
     \toprule
-    1 &  \texttt{(MState \{[(cons m (cons ,m _)) (Multiset Integer) \{2 8 2\}]\} \{\})} \\ \hline
-    2 &  \thead[l]{\texttt{(MState \{[m Integer 2] [(cons ,m _) (Multiset Integer) \{8 2\}]\} \{\})} \\
-                   \textcolor{gray}{\texttt{(MState \{[m Integer 8] [(cons ,m _) (Multiset Integer) \{2 2\}]\} \{\})}} \\
-                   \textcolor{gray}{\texttt{(MState \{[m Integer 2] [(cons ,m _) (Multiset Integer) \{2 8\}]\} \{\})}}} \\ \hline
-    3 &  \texttt{(MState \{[m Something 2] [(cons ,m _) (Multiset Integer) \{8 2\}]\} \{\})} \\ \hline
-    4 &  \texttt{(MState \{[(cons ,m _) (Multiset Integer) \{8 2\}]\} \{[m 2]\})} \\ \hline
-    5 &  \thead[l]{\textcolor{gray}{\texttt{(MState \{[,m Integer 8] [_ (Multiset Integer) \{2\}]\} \{[m 2]\})}} \\
-                   \texttt{(MState \{[,m Integer 2] [_ (Multiset Integer) \{8\}]\} \{[m 2]\})}} \\ \hline
-    6 &  \texttt{(MState \{[_ (Multiset Integer) \{8\}]\} \{[m 2]\})} \\ \hline
-    7 &  \texttt{(MState \{[_ Something \{8\}]\} \{[m 2]\})} \\ \hline
-    8 &  \texttt{(MState \{\} \{[m 2]\})} \\
+    1 &  \texttt{(MState \{[(cons m (cons (val ,(lambda (m) m)) _)) (Multiset Integer) \{2 8 2\}]\} \{\})} \\ \hline
+    2 &  \thead[l]{\texttt{(MState \{[m Integer 2] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{8 2\}]\} \{\})} \\
+                   \textcolor{gray}{\texttt{(MState \{[m Integer 8] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{2 2\}]\} \{\})}} \\
+                   \textcolor{gray}{\texttt{(MState \{[m Integer 2] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{2 8\}]\} \{\})}}} \\ \hline
+    3 &  \texttt{(MState \{[m Something 2] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{8 2\}]\} \{\})} \\ \hline
+    4 &  \texttt{(MState \{[(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{8 2\}]\} \{[m 2]\})} \\ \hline
+    5 &  \thead[l]{\textcolor{gray}{\texttt{(MState \{[,m Integer 8] [_ (Multiset Integer) \{2\}]\} \{2\})}} \\
+                   \texttt{(MState \{[,m Integer 2] [_ (Multiset Integer) \{8\}]\} \{2\})}} \\ \hline
+    6 &  \texttt{(MState \{[_ (Multiset Integer) \{8\}]\} \{2\})} \\ \hline
+    7 &  \texttt{(MState \{[_ Something \{8\}]\} \{2\})} \\ \hline
+    8 &  \texttt{(MState \{\} \{2\})} \\
     \bottomrule
   \end{tabular}
 \end{center}
@@ -895,7 +905,7 @@ Similarly, \texttt{iota} is a function in Scheme that returns a list of sequenti
 }
 
 \begin{lstlisting}[language=egison]
-(match-all (iota n 1) (Multiset Something) ((cons x (cons y _)) `(,x ,y)))
+(match-all (iota n 1) (Multiset Something) [(cons x (cons y _)) `(,x ,y)])
 \end{lstlisting}
 
 \noindent
