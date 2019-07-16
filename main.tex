@@ -337,9 +337,9 @@ I will skip the explanation of the following program for now.
 \medskip
 
 Pattern matching was also invented in a context of computer algebra.
-Pattern matching for symbolic mathematical expression was implemented in the symbol manipulation system proposed by McBride~\cite{mcbride1969symbol}, which was developed on top of Lisp.
+Pattern matching for symbolical mathematical expression was implemented in the symbol manipulation system proposed by McBride~\cite{mcbride1969symbol}, which was developed on top of Lisp.
 This pattern-matching system supports non-linear patterns.
-Their paper demonstrates some examples that process symbolic mathematical expressions to show the expressive power of non-linear patterns.
+Their paper demonstrates some examples that process symbolical mathematical expressions to show the expressive power of non-linear patterns.
 However, this approach does not support pattern matching with multiple results, and users cannot extend its pattern-matching facility.
 
 Queinnec~\cite{queinnec1990compilation} also pursued expressive pattern matching.
@@ -369,27 +369,30 @@ For example, Yuito Murase has exported the proposed Scheme macros to Common Lisp
 This section introduces the usage of the pattern-matching expressions provided by the proposed Scheme macros.
 \new{
 Fig.~\ref{fig:syntax} shows the formal grammar of the pattern-matching expressions of the proposed Scheme macros.
-$M$ denotes an expression.
+$M$ denotes an expression for pattern matching.
+$e$ denotes an arbitrary expression including $M$.
 $p$ denotes a pattern.
 $x$ denotes a symbol.
 $C$ denotes a pattern constructor.
 }
 
 \begin{figure}[h]
+  \vspace{-3mm}
 \begin{multicols}{2}
 \noindent
 \begin{align*}
-M &::= \texttt{(match-all $M$ $M$ [$p$ $M$] $\cdots$)} \\
-&\mid \texttt{(match-first $M$ $M$ [$p$ $M$] $\cdots$)} \\
+M &::= \texttt{(match-all $e$ $e$ [$p$ $e$] $\cdots$)} \\
+&\mid \texttt{(match-first $e$ $e$ [$p$ $e$] $\cdots$)} \\
 &\mid \texttt{Something}
 \end{align*}
 \columnbreak
 \begin{align*}
-p &::= \texttt{_} \mid \texttt{$x$} \mid \texttt{,$M$} \mid \texttt{($C$ $p$ $\cdots$)} \mid \texttt{'($p$ $\cdots$)} \\
+p &::= \texttt{_} \mid \texttt{$x$} \mid \texttt{,$e$} \mid \texttt{($C$ $p$ $\cdots$)} \mid \texttt{'($p$ $\cdots$)} \\
 &\mid \texttt{(or $p$ $\cdots$)} \mid \texttt{(and $p$ $\cdots$)} \mid \texttt{(not $p$)} \\
 &\mid \texttt{(later $p$)} \\
 \end{align*}
 \end{multicols}
+  \vspace{-8mm}
   \caption{Syntax of the proposed macros}
   \label{fig:syntax}
 \end{figure}
@@ -401,13 +404,13 @@ Scheme programs in this paper use three kinds of parenthesis.
 ``\lstinline{()}'' is used to build a syntax tree or apply a function and a pattern constructor.
 Though we use ``\lstinline{<>}'' for applying a pattern constructor in Egison, we use ``\lstinline{()}'' for that in Scheme because we cannot use ``\lstinline{<>}'' as parenthesis in Scheme.~\footnote{The square brackets ``\lstinline{[]}'' are reserved for future language extension in R7RS.
 Furthermore, the use of braces ``\texttt{\{\}}'' is outside the standard language specification in both of R6RS and R7RS.
-Therefore, it is safe to replace braces and square brackets to parenthesis when we export the Scheme program in this paper to other Scheme implementation.
+Therefore, it is safe to replace braces and square brackets to parenthesis when we export the Gauche Scheme program in this paper to other Scheme implementation.
 }
 }
 
 The \texttt{match-all} expression has the completely same meaning as that of Egison.
-The \texttt{match-first} has similar to the traditional \texttt{match} expression; it evaluates the body of the first match clause whose pattern matches with the target.
-We do not use the name \texttt{match} to avoid the name conflict with Wright's \texttt{match}~\cite{wright1993pattern} because Wright's \texttt{match} plays fundamental role for defining a matcher, which will be explained in Sect.~\ref{method-matcher}.
+The \texttt{match-first} is similar to the traditional \texttt{match} expression; it evaluates the body of the first match clause whose pattern matches with the target.
+We do not use the name \texttt{match} to avoid the name conflict with Wright's \texttt{match}~\cite{wright1993pattern} because Wright's \texttt{match} plays fundamental role for defining a user-defined matcher, which will be explained in Sect.~\ref{method-matcher}.
 The only difference between \texttt{match-first} and the traditional \texttt{match} expression is \texttt{match-first} takes a matcher.
 The both \texttt{match-all} and \texttt{match-first} expression can take multiple match clauses.
 \new{
@@ -679,13 +682,24 @@ This distinct implementation of \lstinline{processMStates} is not necessary for 
 
 \section{Implementation Method}\label{method}
 
-This section introduces a method for implementing the \lstinline{match-all} macro in Scheme.
-The three tricks that are explained in Sect.~\ref{method-matcher}, Sect.~\ref{method-map}, and Sect.~\ref{method-val-pat} enable this implementation.
+\renew{
+There are three problems for porting the Egison pattern-matching system into Scheme.
+The three tricks explained in Sect.~\ref{method-matcher}, Sect.~\ref{method-map}, and Sect.~\ref{method-val-pat} solve these problems, respectively.
+}
+
+\begin{enumerate}
+\item How to represent a matcher in Scheme that is a special built-in object of Egison?
+\item How to implement a syntax construct that calls the complicated pattern-matching procedure in Sect.~\ref{algorithm}?
+\item How to represent a non-linear pattern that has the complex scoping rule in Scheme?
+\end{enumerate}
 
 \subsection{Compiling Matchers to \lstinline{lambda}s}\label{method-matcher}
 
 In the Egison pattern matching system~\cite{egi2018aplas}, a matcher is a special object that retains a pattern-matching algorithm.
-In the proposed Scheme macros, for encoding a matcher with lambda to avoid introducing new built-in objects, a matcher is defined as a function that takes a pattern and a target, and returns a list of lists of next matching atoms.
+\new{
+In the proposed Scheme macros, we encode a matcher with \texttt{lambda}s to avoid introducing new built-in objects.
+We can achieve that by defining a matcher as a function that takes a pattern and a target, and returns a list of lists of next matching atoms.
+}
 For example, the \lstinline{Multiset} matcher is defined as follows.
 
 \begin{lstlisting}[language=egison]
@@ -706,11 +720,13 @@ For example, the \lstinline{Multiset} matcher is defined as follows.
         [pvar `{{[,pvar Something ,t]}}]))))
 \end{lstlisting}
 
-In the above program, we uses ``\texttt{\{\}}'' and ``\lstinline{[]}'' separately to enhance the readability of the program.
-We use braces ``\texttt{\{\}}'' for enclosing a list.
-For example, a list of matching atoms is enclosed with braces.
-We use brackets ``\lstinline{[]}'' for enclosing a tuple.
-For example, a matching atom, which is a triple of a pattern, a matcher, and a target, is enclosed with brackets.
+\noindent
+Note that the separate use of ``\texttt{\{\}}'' and ``\lstinline{[]}'' introduced in Sect.~\ref{usage} enhances the readability of the above program.
+%In the above program, we uses ``\texttt{\{\}}'' and ``\lstinline{[]}'' separately to enhance the readability of the program.
+%We use braces ``\texttt{\{\}}'' for enclosing a list.
+%For example, a list of matching atoms is enclosed with braces.
+%We use brackets ``\lstinline{[]}'' for enclosing a tuple.
+%For example, a matching atom, which is a triple of a pattern, a matcher, and a target, is enclosed with brackets.
 
 As a matcher definition of Egison~\cite{egi2018aplas}, a matcher definition consists of match clauses for pattern matching against a pattern.
 Each match clause describes a pattern-matching algorithm against the matched pattern.
