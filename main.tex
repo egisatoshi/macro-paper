@@ -819,9 +819,9 @@ Sect.~\ref{benchmark-result} analyzes this overhead.
 
 This section explains a method for compiling value patterns.
 A value pattern is transformed into a \lstinline{lambda} expression whose arguments are pattern variables that appear in the left side of the value pattern.
-\new{
+%\new{
 For example, ``\lstinline{(cons x (cons y (cons ,x (cons z _))))}'' is transformed into ``\lstinline{(cons x (cons y (cons (val ,(lambda (x y) x)) (cons z _))))}''.
-}
+%}%new
 The \lstinline{rewrite-pattern} function called inside the macro does this transformation.
 
 This transformed value pattern is handled in \lstinline{processMState}.
