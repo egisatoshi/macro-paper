@@ -263,7 +263,7 @@ Users can define their own matchers in Egison.
 %\new{
 If we change the matcher of the above \lstinline{match-all} from ``\lstinline{(list integer)}'' to ``\lstinline{(multiset integer)}'', the evaluation result also changes.
 The \lstinline{cons} pattern of a multiset is defined to divide a target list into an arbitrary element and the rest.
-As a result, there are three decompositions as follows.
+As a result, there are three decompositions.
 %new
 
 \begin{lstlisting}[language=egison]
@@ -307,11 +307,6 @@ In fact, we can also define such a pattern-matching algorithm by defining a matc
 %new
 
 The program below defines a pattern-matching algorithm for a multiset.
-The \lstinline{matcher} expression used in the following program is a built-in syntax of Egison for defining pattern-matching algorithms for each data type.
-%\new{
-The definition of \lstinline{multiset} in Scheme will be explained in Sect.~\ref{method-matcher}.
-I will skip the explanation of the following program for now.
-%new
 
 \begin{lstlisting}[language=egison]
 (define $multiset
@@ -332,7 +327,13 @@ I will skip the explanation of the following program for now.
         {[$tgt {tgt}]}]})))
 \end{lstlisting}
 
-\noindent This paper imports the pattern-matching facility of Egison into Scheme.
+\noindent
+The \lstinline{matcher} expression used in the above program is a built-in syntax of Egison for defining pattern-matching algorithms for each data type.
+%\new{
+The definition of \lstinline{multiset} in Scheme will be explained in Sect.~\ref{method-matcher}.
+I will skip the explanation of the following program for now.
+%new
+This paper imports the pattern-matching facility of Egison into Scheme.
 
 \medskip
 
@@ -402,6 +403,7 @@ Scheme programs in this paper use three kinds of parenthesis.
 ``\lstinline{[]}'' is used to build a tuple.
 ``\texttt{\{\}}'' is used to build a list. %TODO
 ``\lstinline{()}'' is used to build a syntax tree or apply a function and a pattern constructor.
+Gauche treats these three parenthesis in the same way as ``\lstinline{()}''.\todo{corect?}
 Though we use ``\lstinline{<>}'' for applying a pattern constructor in Egison, we use ``\lstinline{()}'' for that in Scheme because we cannot use ``\lstinline{<>}'' as parenthesis in Scheme.~\footnote{The square brackets ``\lstinline{[]}'' are reserved for future language extension in R7RS.
 Furthermore, the use of braces ``\texttt{\{\}}'' is outside the standard language specification in both of R6RS and R7RS.
 Therefore, it is safe to replace braces and square brackets to parenthesis when we export the Gauche Scheme program in this paper to other Scheme implementation.
@@ -761,12 +763,12 @@ This match clause creates the next matching atom by just changing the matcher fr
 The \lstinline{match-all} expression is transformed into an application of \lstinline{map} whose first argument is a function whose argument is a return value of \lstinline{extract-pattern-variables}, and second argument is the result of \lstinline{gen-match-results}.
 The \lstinline{extract-pattern-variables} function takes a pattern and returns a list of pattern variables that appear in the pattern.
 The order of the pattern variables corresponds with the order they appeared in the pattern.
-For example, ``\lstinline{(extract-pattern-variables '(join hs (cons x ts)))}'' returns ``\lstinline{(hs x ts)}''.
+For example, ``\lstinline{(extract-pattern-variables '(cons x xs)}'' returns ``\lstinline{(x xs)}''.
 The \lstinline{gen-match-results} function takes a pattern, a target, and a matcher, and returns a list of pattern-matching results.
 These pattern-matching results consist of values that are going to be bound to the pattern variables returned by \lstinline{extract-pattern-variables}.
 The order of the values in the \lstinline{gen-match-results} must correspond with the order of pattern variables returned by \lstinline{extract-pattern-variables}.
 %\new{
-For example, ``\lstinline{(gen-match-results (cons x xs) (Multiset Something) (1 2 3))}'' returns ``\lstinline{((1 (2 3)) (2 (1 3)) (3 (1 2)))}''.
+For example, ``\lstinline{(gen-match-results '(cons x xs) (Multiset Something) '(1 2 3))}'' returns ``\lstinline{((1 (2 3)) (2 (1 3)) (3 (1 2)))}''.
 %new
 
 \begin{lstlisting}[language=egison]
@@ -777,11 +779,15 @@ For example, ``\lstinline{(gen-match-results (cons x xs) (Multiset Something) (1
 \noindent The above transformation is done by the following macro.
 
 \begin{lstlisting}[language=egison]
-(define-macro (match-all t M clause)
-  (let* {[p (rewrite-pattern (list 'quasiquote (car clause)))]
-         [e (cadr clause)]}
-    `(map (lambda (ret) (apply (lambda ,(extract-pattern-variables p) ,e) ret))
-          (gen-match-results ,p ,M ,t))))
+(define-macro (match-all t M . clauses)
+  (if (eq? clauses '())
+      '()
+      (let* {[clause (car clauses)]
+             [p (rewrite-pattern (list 'quasiquote (car clause)))]
+             [es (cdr clause)]}
+        `(append (map (lambda (ret) (apply (lambda ,(extract-pattern-variables p) . ,es) ret))
+                      (gen-match-results ,p ,M ,t))
+                 (match-all ,t ,M . ,(cdr clauses))))))
 \end{lstlisting}
 
 \noindent
@@ -793,12 +799,13 @@ By using \lstinline{syntax-case} and \lstinline{syntax->datum} in R6RS~\cite{spe
 %new
 
 The program below defines \lstinline{gen-match-results}.
-\lstinline{gen-match-results} is a macro that calls the \lstinline{processMStates} function introduced in Sect.~\ref{algorithm}.
+\lstinline{gen-match-results} is a function that calls the \lstinline{processMStates} function introduced in Sect.~\ref{algorithm}.
 An initial matching state ``\lstinline|(MState {[p M t]} {})|'' is created from ``\lstinline{p}'', ``\lstinline{M}'', and ``\lstinline{t}''.
 
 \begin{lstlisting}[language=egison]
-(define-macro (gen-match-results p M t)
-  `(processMStates (list (list 'MState (list (list ,p ,M ,t) ) {}))))
+(define gen-match-results
+  (lambda (p M t)
+    (processMStates `{(MState {[,p ,M ,t]} {})})))
 \end{lstlisting}
 
 \medskip
