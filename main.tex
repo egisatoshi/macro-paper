@@ -142,12 +142,12 @@
   Many pattern-matching extensions have been proposed and implemented for extending the range of data types to which pattern matching is applicable.
   Among them, the pattern-matching system proposed by Egi and Nishiwaki features practical pattern matching for non-free data types by providing an extensible non-linear pattern-matching facility with backtracking~\cite{egi2018aplas}.
   % Inquiry:
-  However, they implemented their proposal only in an interpreter of the Egison programming language.
+  However, they implemented their proposal only in an interpreter of the Egison programming language, and an efficient method for compiling pattern-matching expressions of Egison was not discussed.
   % Approach:
   %\new{
   This paper proposes a method that translates a program that contains pattern-matching expressions of Egison to a program that contains only the existing syntax constructs of functional programming languages.
-  This method is based on the three key ideas: (i) transformation of a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target, (ii) compilation of \texttt{match-all} to application of the \texttt{map} function, and (iii) transformation of a value pattern to a function that takes an intermediate pattern-matching result and returns a value.
-  This paper shows the porposed method works by showing Scheme macros that provides the users the pattern-matching facility of Egison.
+  This method is based on the three key ideas: (i) transformation of a matcher to a function that takes a pattern and a target, and returns lists of triples of a pattern, a matcher, and a target; (ii) compilation of \texttt{match-all} to application of the \texttt{map} function; (iii) transformation of a value pattern to a function that takes an intermediate pattern-matching result and returns a value.
+  This paper shows the proposed method works by showing Scheme macros that provide the users the pattern-matching facility of Egison.
   % Knowledge
   This paper also presents benchmark results that show Egison pattern-matching embedded in Gauche Scheme is faster than the original Egison interpreter.
   %new
@@ -186,31 +186,31 @@ The pattern-matching facility for algebraic data types is common in modern funct
 For example, Haskell and OCaml support pattern matching for algebraic data types.
 Many Scheme implementations also have a similar pattern-matching facility~\cite{gauchePM} though Scheme does not contain pattern matching for algebraic data types in its specification, R7RS~\cite{shinn2013revised}.
 
-However, some data types are not algebraic data types and we cannot use the common pattern-matching facility for them.
+However, some data types are not algebraic data types, and we cannot use the common pattern-matching facility for them.
 These data types are called \emph{non-free} data types.
 Non-free data have no canonical form as data of algebraic data types.
 For example, multisets are non-free data types because the multiset $\{a,b,b\}$ has two other equivalent but syntactically different forms $\{b,a,b\}$ and $\{b,b,a\}$.
 
 Many pattern-matching extensions have been proposed for extending the range of data types to which pattern matching is applicable to non-free data types~\cite{Hudak07ahistory,turner2012some}.
-Among them, the pattern-matching system proposed by Egi and Nishiwaki~\cite{egi2018aplas} features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking, (ii) extensibility of pattern-matching algorithms, and (iii) polymorphic patterns.
+Among them, the pattern-matching system proposed by Egi and Nishiwaki~\cite{egi2018aplas} features practical pattern matching for non-free data types with the following three features: (i) non-linear pattern matching with backtracking; (ii) extensibility of pattern-matching algorithms; (iii) polymorphic patterns.
 However, the pattern-matching algorithm proposed by them is not as simple as the earlier pattern-matching extensions that can be compiled into simple conditional branches and Egi and Nishiwaki implemented their proposal only in an interpreter of the Egison programming language.
-As a result, a method for importing their pattern matching system into the other functional programming languages was not obvious.
+As a result, a method for efficiently compiling their pattern matching system was not obvious.
 
 %\new{
 This paper proposes a method that translates a program that contains pattern-matching expressions of Egison to a program that contains only the existing syntax constructs of functional programming languages.
-The reason why I want to implement the pattern-matching facility of Egison as syntax sugar of the existing languages is that it allows us fully utilize the optimization techniques of an existing compiler without effort for extending an existing compiler.
+The reason why this paper aims to implement the pattern-matching facility of Egison as syntax sugar of the existing languages is to fully utilize the optimization techniques of an existing compiler without effort for extending an existing compiler.
 %new
 
 %\new{
 This paper shows the proposed method works by implementing the pattern-matching facility of Egison on Scheme.
-We choose Scheme as the target programming language by the following reasons:
+We choose Scheme as the target programming language by the following two reasons:
 (i) Scheme has a macro system and provides easy meta-programming environment;
 (ii) Scheme is a dynamically typed programming language.
-Thanks to (i), we can add a new syntax sugar in Scheme without modifying an Scheme compiler.
-I do not use the \lstinline{eval} function for this implementation to fully utilize the optimization techniques of a compiler by handling all the variable bindings natively by the Scheme compiler.
-The reason (ii) comes from the problem that static typing of a program generated by the proposed method is difficult.
+Thanks to (i), we can add a new syntax sugar to Scheme without modifying a Scheme compiler.
+I do not use the \lstinline{eval} function for this implementation to fully utilize the optimization techniques of a compiler by handling all the variable bindings natively by a Scheme compiler.
+The reason (ii) comes from the problem that the static typing of a program generated by the proposed method is difficult.
 The extension of the proposed method for statically typed programming languages remains as future work.
-The implementation of the macros has been already open-sourced~\cite{egisonScheme}.
+The implementation of the proposed method as Scheme  macros has been already open-sourced~\cite{egisonScheme}.
 We can try the macros on the Gauche Scheme~\cite{gaucheWeb}.
 %new
 
@@ -225,7 +225,7 @@ Finally, Sect.~\ref{conclusion} concludes the paper.
 
 \section{Related Work}\label{history}
 
-This section reviews the history of pattern matching and implementation of pattern matching in Scheme.
+This section reviews the history of pattern matching and implementations of pattern matching in Scheme.
 
 \subsection{History of Pattern Matching and Its Extensions}\label{history1}
 
@@ -243,7 +243,7 @@ For example, Wadler's paper~\cite{wadler1987views} presents pattern matching for
 However, the expressive power of these pattern-matching systems is not enough for representing patterns for non-free data types.
 These pattern-matching systems support neither non-linear patterns nor pattern matching with multiple results.
 
-These works in 1980s lead to the development of more pattern-matching extensions.
+These works in the 1980s lead to the development of more pattern-matching extensions.
 Erwig's active patterns~\cite{erwig1996active} proposed in 1996 and Tullsen's first class patterns~\cite{tullsen2000first} proposed in 2000 are such extensions.
 Both extensions allow users to customize the pattern-matching algorithm for each pattern constructor.
 Active patterns support non-linear patterns though they do not support pattern matching with multiple results.
@@ -252,8 +252,8 @@ First class patterns support pattern matching with backtracking though they do n
 Egison~\cite{egisonWeb} is a programming language with a pattern matching system that is extensible and supports both of non-linear patterns and multiple results~\cite{egi2018aplas}.
 %\new{
 The expressions below match a list ``\texttt{\{1 2 3\}}'' as a list of integers ``\lstinline{(list integer)}'' using the pattern ``\lstinline{<cons $x $ts>}''.
-In Egison, a pattern variable begin with ``\lstinline{$}''.
-Egison uses four kinds of parenthesis for different purpose.
+In Egison, a pattern variable begins with ``\lstinline{$}''.
+Egison uses four kinds of parenthesis for a different purpose.
 ``\lstinline{()}'' is used to build a syntax tree or apply a function.
 ``\lstinline{<>}'' is used to apply a pattern constructor to patterns.
 ``\lstinline{[]}'' is used to build a tuple.
@@ -306,7 +306,7 @@ The time complexity of this pattern matching is $O(n^2)$ because Egison uses bac
 The Curry functional logic programming language also supports non-linear pattern matching with multiple results.
 However, Curry transforms a non-linear pattern to pattern guards~\cite{antoy2010programming,antoy2001constructor,hanus2007multi}.
 Therefore, the time complexity for the same pattern matching is $O(n^3)$ in Curry because pattern guards are applied after pattern matching succeeds.
-Thus, backtracking is important feature for handling non-linear patterns.
+Thus, backtracking is an important feature for handling non-linear patterns.
 %new
 
 \begin{lstlisting}[language=egison]
@@ -352,17 +352,17 @@ This paper imports the pattern-matching facility of Egison into Scheme.
 
 \medskip
 
-Pattern matching was also invented in a context of computer algebra.
+Pattern matching was also invented in the context of computer algebra.
 Pattern matching for symbolical mathematical expression was implemented in the symbol manipulation system proposed by McBride~\cite{mcbride1969symbol}, which was developed on top of Lisp.
 This pattern-matching system supports non-linear patterns.
 Their paper demonstrates some examples that process symbolical mathematical expressions to show the expressive power of non-linear patterns.
 However, this approach does not support pattern matching with multiple results, and users cannot extend its pattern-matching facility.
 
 Queinnec~\cite{queinnec1990compilation} also pursued expressive pattern matching.
-Though this proposal is specialized to lists and not extensible, the proposed pattern-matching system is as expressive as Egison.
+Though this proposal is specialized in lists and not extensible, the proposed pattern-matching system is as expressive as Egison.
 The proposed system supports the \lstinline{cons} and the \lstinline{join} patterns, \lstinline{match-all}, not-patterns, and recursive patterns.
 
-%\todo{Seems like PLT Redex and logic programming may be related work, and also pattern matching with segment variables and backtracking.}
+%\todo{Seems like PLT Redex, and logic programming may be related work, and also pattern matching with segment variables and backtracking.}
 
 \subsection{Implementation History of Pattern Matching in Scheme}\label{history2}
 
@@ -418,8 +418,8 @@ Scheme programs in this paper use three kinds of parenthesis.
 ``\lstinline{[]}'' is used to build a tuple.
 ``\texttt{\{\}}'' is used to build a list. %TODO
 ``\lstinline{()}'' is used to build a syntax tree or apply a function and a pattern constructor.
-Gauche treats these three parenthesis in the same way as ``\lstinline{()}''.
-Though we use ``\lstinline{<>}'' for applying a pattern constructor in Egison, we use ``\lstinline{()}'' for that in Scheme because we cannot use ``\lstinline{<>}'' as parenthesis in Scheme.~\footnote{The square brackets ``\lstinline{[]}'' are reserved for future language extension in R7RS.
+Gauche treats these three parentheses in the same way as ``\lstinline{()}''.
+Though we use ``\lstinline{<>}'' for applying a pattern constructor in Egison, we use ``\lstinline{()}'' for that in Scheme because we cannot use ``\lstinline{<>}'' as a parenthesis in Scheme.~\footnote{The square brackets ``\lstinline{[]}'' are reserved for future language extension in R7RS.
 Furthermore, the use of braces ``\texttt{\{\}}'' is outside the standard language specification in both of R6RS and R7RS.
 Therefore, it is safe to replace braces and square brackets to parenthesis when we export the Gauche Scheme program in this paper to other Scheme implementation.
 }
@@ -465,7 +465,7 @@ The use of ``\lstinline{,}'' to notate a value pattern is an analogy of the use 
 A value pattern is similar to \lstinline{unquote} in the sense that only the expressions inside value patterns that are followed after ``\lstinline{,}'' are evaluated as an ordinary Scheme expression in a pattern.
 %new
 
-\subsection{Inductive Patterns}
+\subsection{Constructor Patterns}
 
 When the pattern is a list, the first element is always handled as a pattern constructor.
 For example, \lstinline{join} and \lstinline{cons} that appear in ``\lstinline{(join _ (cons x _))}'' are pattern constructors.
@@ -488,8 +488,8 @@ Each element of a tuple pattern is pattern-matched with the corresponding elemen
 \end{lstlisting}
 
 %\new{
-``\lstinline{'}'' is important to distinguish a tuple pattern from a inductive pattern.
-For example, ``\lstinline{'[x y]}'' cannot be distinguished from an inductive pattern whose constructor is ``\lstinline{x}'' if ``\lstinline{'}'' is not prepended.
+``\lstinline{'}'' is important to distinguish a tuple pattern from a constructor pattern.
+For example, ``\lstinline{'[x y]}'' cannot be distinguished from a constructor pattern whose constructor is ``\lstinline{x}'' if ``\lstinline{'}'' is not prepended.
 %new
 
 \subsection{Logical Patterns}
@@ -694,7 +694,7 @@ Appendix~\ref{pm-inf} demonstrates pattern matching that uses the macros provide
 Consequently, sharing the same \texttt{processMStates} function with \texttt{match-first} is inefficient.
 For that reason, the \texttt{processMStates1} function in Fig.~\ref{fig:processMStates1} is used for \texttt{match-first} instead of \texttt{processMStates}.
 \texttt{processMStates1} is defined to return only the first pattern-matching result.
-This distinct implementation of \lstinline{processMStates} is not necessary for the Egison language that adopt a lazy evaluation strategy.
+This distinct implementation of \lstinline{processMStates} is not necessary for the Egison language that adopts a lazy evaluation strategy.
 %new
 
 \section{Implementation Method}\label{method}
@@ -788,7 +788,7 @@ For example, ``\lstinline{(gen-match-results '(cons x xs) (Multiset Something) '
 
 \begin{lstlisting}[language=egison]
 (match-all t M [p e])
-;=> `(map (lambda ,(extract-pattern-variables p) ,e) ,(gen-match-results p M t))
+;=> `(map (lambda ,(extract-pattern-variables p) ,e) (gen-match-results ,p ,M ,t))
 \end{lstlisting}
 
 \noindent The above transformation is done by the following macro.
@@ -832,7 +832,7 @@ However, the pattern-matching procedure of Egison is so complicated that it is i
 %new
 This section showed that we can compile the large pattern-matching procedure of Egison by separating the extraction of pattern variables and the calculation of pattern-matching results.
 %\new{
-These two procedures are implemented in Scheme and a pattern-matching expression is compiled to a program that calls these two procedures.
+These two procedures are implemented in Scheme, and a pattern-matching expression is compiled to a program that calls these two procedures.
 This method allows us to compile very complicated pattern matching procedures but has overhead.
 Sect.~\ref{benchmark-result} analyzes this overhead.
 %new
@@ -880,7 +880,7 @@ First, we can improve the performance of the \lstinline{Multiset} implementation
 The \lstinline{Multiset} matcher definition below has a new match clause in the 6th line.
 This match clause describes a pattern-matching algorithm for the \lstinline{cons} pattern whose second argument is a wildcard.
 In this case, we do not need to calculate the rest of the collection.
-The cost for calculating the rest of the collection is so high that the performance dramatically improves by adding this new match clause.
+The cost of calculating the rest of the collection is so high that the performance dramatically improves by adding this new match clause.
 %\todo{why expensive?}
 
 \begin{lstlisting}[language=egison]
@@ -900,7 +900,7 @@ The cost for calculating the rest of the collection is so high that the performa
 Here is another example from the \lstinline{List} matcher.
 The cost of pattern matching for the \lstinline{join} pattern is high.
 %\todo{why expensive?}
-However, the cost for enumerating only the tail parts is low; we can write a tail recursive function for enumerating the tail parts.
+However, the cost for enumerating only the tail parts is low; we can write a tail-recursive function for enumerating the tail parts.
 When we use join patterns, the first argument of \lstinline{join} is often a wildcard.
 Therefore, by adding a match clause for a \lstinline{join} pattern whose first argument is a wildcard as follows, we can improve the efficiency of pattern matching for a list.
 
@@ -988,8 +988,8 @@ I ran all the benchmarks five times and took a median for each of them.
 For all the benchmarks, Scheme is faster than Egison.
 The reason for these performance differences is that Gauche, a scheme implementation I used for the benchmark, has a compiler while Egison has only a simple interpreter implementation.
 
-Adding a matcher clause for an inductive pattern with wildcards is effective for both Egison and Scheme.
-This trick improves the performance of Egison and Scheme around $6$ times and $40$ times respectively for $n=800$.
+Adding a matcher clause for a constructor pattern with wildcards is effective for both Egison and Scheme.
+This trick improves the performance of Egison and Scheme around $6$ times and $40$ times, respectively for $n=800$.
 The performance improvement is larger for Scheme than Egison because Scheme is a strict language.
 Scheme always evaluates ``\lstinline{(append hs ts)}'' in the 9th line of the \lstinline{Multiset} definition in Sect.~\ref{method-matcher} whereas Egison evaluates the corresponding expression only when it is necessary.
 
@@ -1004,10 +1004,10 @@ For example, several advanced pattern constructs in Egison such as \emph{loop pa
 %\new{
 Loop patterns allow us to describe repetitions in a pattern like the Kleene star operator of the regular expressions.
 Loop patterns are more expressive than the other repeated pattern such as the Kleene star operator in the sense that loop patterns allow users to change the pattern repeated depending on the current repeat count~\cite{egi2018loop}.
-Sequential patterns are generalization of later patterns and  allow users to control the order of the pattern-matching process.
-Pattern functions allow users to modularize patterns with lexical scope by composing patterns.
+Sequential patterns are a generalization of later patterns and allow users to control the order of the pattern-matching process.
+Pattern functions allow users to modularize patterns with a lexical scope by composing patterns.
 These pattern constructs widen the range of patterns that we can describe concisely.
-Currently, I am preparing a paper to show usefulness of these patterns.
+Currently, I am preparing a paper to show the usefulness of these patterns.
 %new
 
 Integration of Egison pattern matching with a programming language with a static type system also remains as future work.
@@ -1027,8 +1027,8 @@ This paper proposed a method for compiling Egison pattern-matching expressions t
 The proposed method made an implementation of the pattern-matching system of Egison very short; the macros and the pattern-matching procedure is implemented in less than 150 lines of Scheme code.
 This implementation is also a good proof of extensibility of Scheme and Lisp.
 
-This pattern matching library will help the research of pattern matching by providing an easy method for developing new pattern-matching extensions.
-This pattern matching library will also help the education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
+This pattern-matching library will help the research of pattern matching by providing an easy method for developing new pattern-matching extensions.
+This pattern-matching library will also help the education of algorithms by making its implementation simpler as the implementation of a SAT solver presented in this paper.
 I hope this work leads to the further development and propagation of advanced pattern matching.
 
 \begin{acks}
@@ -1132,7 +1132,7 @@ We can compare this Scheme program with the OCaml implementation of the same alg
 %\new{
 The \lstinline{sat} function takes two argument \lstinline{vars}, a list of propositional variable, and \lstinline{cnf}, a propositional logic formula in conjunctive normal form.
 The tuple consists of \lstinline{vars} and \lstinline{cnf} is pattern-matched as a tuple of a multiset of integers and a multiset of multisets of integers in the definition of \lstinline{sat}.
-In this program, a propositional variable is represented as a positive integer, and a literal is represented as a integer.
+In this program, a propositional variable is represented as a positive integer, and a literal is represented as an integer.
 For example, $-1$ represents negation of the propositional variable $1$.
 %new
 
