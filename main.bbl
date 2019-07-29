@@ -87,10 +87,10 @@
 \newblock \bibinfo{title}{{13.1. Language options --- Glasgow Haskell Compiler
   8.6.5 User's Guide}}.
 \newblock
-  \bibinfo{howpublished}{\url{https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html}}.
+  \bibinfo{howpublished}{\url{https://downloads.haskell.org/~ghc/8.6.5/docs/html/users_guide/glasgow_exts.html}}.
 \newblock
 \newblock
-\shownote{[Online; accessed 4-June-2019].}
+\shownote{[Online; accessed 4-July-2019].}
 
 
 \bibitem[\protect\citeauthoryear{??}{egi}{2019a}]%

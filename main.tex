@@ -991,7 +991,7 @@ Integration of Egison pattern matching with a programming language with a static
 Though we have an experimental Template Haskell implementation~\cite{egisonHaskell}, this Haskell implementation currently has a limitation that it does not allow users to define new pattern constructors.
 %\new{
 For example, the \lstinline{nil}, \lstinline{cons}, and \lstinline{join} pattern constructors are built-in in the current implementation.
-This limitation comes from the limitation of Haskell that does not allow overlapping data families.~\cite{ghcMan}
+This limitation comes from the limitation of Haskell that does not allow overlapping data families~\cite{ghcMan}.
 In the current Template Haskell implementation of Egison, patterns are defined in the library as data of ``\lstinline{Pattern a}'', which is a data type for patterns against data whose type is ``\lstinline{a}''.
 Users cannot add new data constructors in ``\lstinline{Pattern a}'' in their program for adding new pattern constructors because of overlap is not permitted.
 %}%new
