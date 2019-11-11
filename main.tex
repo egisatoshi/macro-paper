@@ -396,9 +396,8 @@ perm([X|XS], YS) :- perm(XS,ZS), insert(X,ZS,YS).
 perm([1,2,3,4,5,6,7,8],[X|[X|_]]).
 \end{lstlisting}
 
-definition of a pattern
-logic programming: how to construct data
-Egison: how to decompose data
+The difference between logic programming and functional pattern-matching facility is that logic programming defines a pattern by how to compose data whereas funtional approach defines a pattern how to decompose data.
+In many cases, definitions by the later approach are more direct.
 
 we can separate code for pattern matching and functional definition.
 
@@ -587,16 +586,16 @@ This transformation is explained in Sect.~\ref{method-val-pat}.
   \footnotesize
   \begin{tabular}{ll}
     \toprule
-    1 &  \texttt{(MState \{[(cons m (cons (val ,(lambda (m) m)) _)) (Multiset Integer) \{2 8 2\}]\} \{\})} \\ \hline
-    2 &  \thead[l]{\texttt{(MState \{[m Integer 2] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{8 2\}]\} \{\})} \\
-                   \textcolor{gray}{\texttt{(MState \{[m Integer 8] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{2 2\}]\} \{\})}} \\
-                   \textcolor{gray}{\texttt{(MState \{[m Integer 2] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{2 8\}]\} \{\})}}} \\ \hline
-    3 &  \texttt{(MState \{[m Something 2] [(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{8 2\}]\} \{\})} \\ \hline
-    4 &  \texttt{(MState \{[(cons (val ,(lambda (m) m)) _) (Multiset Integer) \{8 2\}]\} \{2\})} \\ \hline
-    5 &  \thead[l]{\textcolor{gray}{\texttt{(MState \{[,m Integer 8] [_ (Multiset Integer) \{2\}]\} \{2\})}} \\
-                   \texttt{(MState \{[,m Integer 2] [_ (Multiset Integer) \{8\}]\} \{2\})}} \\ \hline
-    6 &  \texttt{(MState \{[_ (Multiset Integer) \{8\}]\} \{2\})} \\ \hline
-    7 &  \texttt{(MState \{[_ Something \{8\}]\} \{2\})} \\ \hline
+    1 &  \texttt{(MState \{[(cons m (cons (val ,(lambda (m) m)) \_)) (Multiset Integer) \{2 8 2\}]\} \{\})} \\ \hline
+    2 &  \thead[l]{\texttt{(MState \{[m Integer 2] [(cons (val ,(lambda (m) m)) \_) (Multiset Integer) \{8 2\}]\} \{\})} \\
+                   \textcolor{gray}{\texttt{(MState \{[m Integer 8] [(cons (val ,(lambda (m) m)) \_) (Multiset Integer) \{2 2\}]\} \{\})}} \\
+                   \textcolor{gray}{\texttt{(MState \{[m Integer 2] [(cons (val ,(lambda (m) m)) \_) (Multiset Integer) \{2 8\}]\} \{\})}}} \\ \hline
+    3 &  \texttt{(MState \{[m Something 2] [(cons (val ,(lambda (m) m)) \_) (Multiset Integer) \{8 2\}]\} \{\})} \\ \hline
+    4 &  \texttt{(MState \{[(cons (val ,(lambda (m) m)) \_) (Multiset Integer) \{8 2\}]\} \{2\})} \\ \hline
+    5 &  \thead[l]{\textcolor{gray}{\texttt{(MState \{[,m Integer 8] [\_ (Multiset Integer) \{2\}]\} \{2\})}} \\
+                   \texttt{(MState \{[,m Integer 2] [\_ (Multiset Integer) \{8\}]\} \{2\})}} \\ \hline
+    6 &  \texttt{(MState \{[\_ (Multiset Integer) \{8\}]\} \{2\})} \\ \hline
+    7 &  \texttt{(MState \{[\_ Something \{8\}]\} \{2\})} \\ \hline
     8 &  \texttt{(MState \{\} \{2\})} \\
     \bottomrule
   \end{tabular}
@@ -989,6 +988,17 @@ Scheme (functional style) & 0.026s & 0.042s & 0.107s & 0.373s & 1.618s & 7.949s 
 \caption{Benchmark results}
 \label{table:benchmark}
 \end{table}
+
+%\begin{table}[htbp]
+%\begin{tabular}{|l||l|l|l|l|l|l|} \hline
+%\texttt{comb2} & n=50 & n = 100 & n = 200 & n=400 & n=800 & n=1600 \\ \hhline{|=#=|=|=|=|=|=|}
+%Egison (pattern matching) & 0.438s & 1.312s & 4.751s & 22.612s & 112.89s & 714.43s \\ \hline
+%Scheme (pattern matching) & 0.074s & 0.099s & 0.259s & 0.752s & 3.159s & 12.641s \\ \hline
+%Scheme (functional style) & 0.026s & 0.042s & 0.107s & 0.373s & 1.618s & 7.949s \\ \hline
+%\end{tabular}
+%\caption{Benchmark results}
+%\label{table:benchmark2}
+%\end{table}
 
 Table~\ref{table:benchmark} shows the benchmark results.
 %\new{
